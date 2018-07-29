@@ -12,7 +12,7 @@ const store = new Vuex.Store({
 })
 
 store.$axios = axios.create({
-  baseURL: '/api/'
+  baseURL: process.env.VUE_APP_BASE_URL
 })
 
 export default store
