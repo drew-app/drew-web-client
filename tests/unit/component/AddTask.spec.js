@@ -17,5 +17,6 @@ describe('AddTask.vue', () => {
     wrapper.find('#tasks--add-task').trigger('submit')
 
     expect($store.dispatch).toHaveBeenCalled()
+    expect(wrapper.find('#tasks--add-task-task-title').element.value).toEqual('')
   })
 })

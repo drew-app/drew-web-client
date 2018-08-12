@@ -19,11 +19,14 @@ export default {
   methods: {
     addTask () {
       this.$store.dispatch('tasks/addTask', {...this.$data.task})
+      this.$data.task = { title: '' }
     }
   }
 }
 </script>
 
 <style scoped>
-
+  form > * {
+    margin-right: 0.5rem;
+  }
 </style>
