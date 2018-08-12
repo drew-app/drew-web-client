@@ -6,10 +6,12 @@
     "serve": "vue-cli-service serve --port 5000 --open",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
+    "deploy": "vue-cli-service s3-deploy",
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
     "vue": "^2.5.16",
+    "vue-cli-plugin-s3-deploy": "^2.0.2",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
