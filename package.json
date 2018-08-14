@@ -10,6 +10,7 @@
     "test:unit": "vue-cli-service test:unit"
   },
   "dependencies": {
+    "lodash": "^4.17.10",
     "vue": "^2.5.16",
     "vue-cli-plugin-s3-deploy": "^2.0.2",
     "vue-router": "^3.0.1",

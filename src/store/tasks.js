@@ -1,9 +1,13 @@
+import { merge } from 'lodash'
+
 export const state = {
   all: []
 }
 
 export const getters = {
-  all: state => state.tasks.all
+  all: state => state.all,
+
+  todo: state => state.all.filter(task => !task.done)
 }
 
 export const mutations = {
@@ -12,6 +16,11 @@ export const mutations = {
   },
   addTask (state, task) {
     state.all.push(task)
+  },
+  updateTask (state, taskAttributes) {
+    let { id } = taskAttributes
+    let taskToBeUpdated = state.all.find((task) => task.id === id)
+    merge(taskToBeUpdated, taskAttributes)
   }
 }
 
@@ -28,6 +37,13 @@ export const actions = {
       }
     }).then(response => {
       context.commit('addTask', response.data)
+    })
+  },
+  updateTask (context, { id, updatedAttributes }) {
+    this.$axios.put(`tasks/${id}`, {
+      task: updatedAttributes
+    }).then(response => {
+      context.commit('updateTask', response.data)
     })
   }
 }
