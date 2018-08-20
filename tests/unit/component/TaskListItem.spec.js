@@ -25,7 +25,20 @@ describe('TaskListItem.vue', () => {
           task: { id: 1, title: 'A task', done: true }
         }
       })
-      expect(wrapper.find('li.task-list-item.done').exists()).toBe(true)
+      expect(wrapper.classes()).toContain('done')
+    })
+
+    it('should apply the start class if it has been started', () => {
+      const wrapper = shallowMount(TaskListItem, {
+        localVue,
+        propsData: {
+          task: { id: 1, title: 'A task', done: false }
+        }
+      })
+
+      wrapper.setData({ started: true })
+
+      expect(wrapper.classes()).toContain('started')
     })
   })
 
@@ -59,6 +72,37 @@ describe('TaskListItem.vue', () => {
 
       expect(payload.id).toEqual(1)
       expect(payload.updatedAttributes).toEqual({ done: true })
+    })
+  })
+
+  describe('Start', () => {
+    it('should flag the task done when the start button is clicked', () => {
+      const wrapper = shallowMount(TaskListItem, {
+        localVue,
+        propsData: {
+          task: { id: 1, title: 'A task', done: true }
+        }
+      })
+
+      wrapper.find('button.start').trigger('click')
+
+      expect(wrapper.classes()).toContain('started')
+    })
+  })
+
+  describe('Stop', () => {
+    it('should remove the started flag when the stop button is clicked', () => {
+      const wrapper = shallowMount(TaskListItem, {
+        localVue,
+        propsData: {
+          task: { id: 1, title: 'A task', done: true }
+        }
+      })
+      wrapper.setData({ started: true })
+
+      wrapper.find('button.stop').trigger('click')
+
+      expect(wrapper.classes()).not.toContain('started')
     })
   })
 })
