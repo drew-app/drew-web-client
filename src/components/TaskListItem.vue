@@ -50,12 +50,12 @@ export default {
 
     .title {
       font-size: 1.2rem;
-      flex: 1 1 600px;
+      flex: 1 1 32rem;
     }
     .actions {
       text-align: right;
       white-space: nowrap;
-      flex: 1 1 180px;
+      flex: 1 1 auto;
       margin-top: short-space;
     }
 
