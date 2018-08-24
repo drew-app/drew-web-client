@@ -20,5 +20,17 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="stylus" scoped>
+  @require '~@/assets/stylesheets/includes'
+
+  ol.task-list
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    max-width: 64rem;
+
+    li
+      padding-bottom: short-space;
+      border-bottom: 1px solid #ccc;
+      margin-bottom: medium-space;
 </style>

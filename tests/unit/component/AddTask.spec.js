@@ -13,10 +13,10 @@ describe('AddTask.vue', () => {
 
     const wrapper = mount(AddTask, {mocks: { $store }})
 
-    wrapper.find('#tasks--add-task-task-title').setValue('Some Title')
-    wrapper.find('#tasks--add-task').trigger('submit')
+    wrapper.find('[name="task_title"]').setValue('Some Title')
+    wrapper.find('form').trigger('submit')
 
     expect($store.dispatch).toHaveBeenCalled()
-    expect(wrapper.find('#tasks--add-task-task-title').element.value).toEqual('')
+    expect(wrapper.find('[name="task_title"]').element.value).toEqual('')
   })
 })

@@ -1,8 +1,9 @@
 <template>
-  <form id="tasks--add-task" @submit.prevent="addTask">
-    <label for="tasks--add-task-task-title">Add Task</label>
-    <input id="tasks--add-task-task-title" v-model="task.title" name="task_title">
-    <button type="submit">Save</button>
+  <form id="add-task" @submit.prevent="addTask">
+    <input v-model="task.title" name="task_title" placeholder="New task">
+    <div class='actions'>
+      <button type="submit">Save</button>
+    </div>
   </form>
 </template>
 
@@ -25,8 +26,34 @@ export default {
 }
 </script>
 
-<style scoped>
-  form > * {
-    margin-right: 0.5rem;
-  }
+<style lang="stylus" scoped>
+  @require '~@/assets/stylesheets/includes'
+  @require '~@/assets/stylesheets/modules/text_input'
+  @require '~@/assets/stylesheets/modules/button'
+
+  #add-task
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: -(short-space);
+    padding: short-space;
+    max-width: 64rem;
+    box-sizing: border-box;
+    border-bottom: 1px dashed #ccc;
+
+    input
+      font-size: 1.2rem;
+      flex: 1 1 600px;
+      border: none;
+      margin-left: -5px;
+
+    .actions
+      text-align: right;
+      white-space: nowrap;
+      flex: 1 1 180px;
+      margin-top: short-space;
+
+      button
+        contained-button()
+
 </style>

@@ -55,7 +55,7 @@ describe('Tasks.vue', () => {
   })
 
   it('should render a task-list with all the tasks if showDone is checked', () => {
-    wrapper.find('#tasks__show-done').trigger('click')
+    wrapper.find('#show-done').trigger('click')
 
     const taskList = wrapper.find('.task-list-stub')
     expect(taskList.text()).toEqual('allTasks')

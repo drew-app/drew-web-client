@@ -1,7 +1,9 @@
 <template>
   <div id="tasks">
     <h1>Tasks</h1>
-    <label>Show done <input id="tasks__show-done" type='checkbox' v-model="showDone"/></label>
+    <div class="filters">
+      <label>Show done <input id="show-done" type='checkbox' v-model="showDone"/></label>
+    </div>
     <task-list v-bind:tasks="tasks"/>
     <add-task/>
   </div>
@@ -34,5 +36,9 @@ export default {
 }
 </script>
 
-<style scoped>
+<style lang="stylus" scoped>
+  @require '~@/assets/stylesheets/includes'
+
+  #tasks
+    .filters { margin: long-space 0; }
 </style>

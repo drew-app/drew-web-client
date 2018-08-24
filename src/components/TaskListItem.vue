@@ -42,8 +42,22 @@ export default {
   @require '~@/assets/stylesheets/modules/button'
 
   li.task-list-item
-    .title { font-size: 1.2rem; }
-    .actions { text-align: right; }
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    margin-top: -(short-space);
+    padding: short-space;
+
+    .title {
+      font-size: 1.2rem;
+      flex: 1 1 600px;
+    }
+    .actions {
+      text-align: right;
+      white-space: nowrap;
+      flex: 1 1 180px;
+      margin-top: short-space;
+    }
 
     button.start,
     button.stop,
@@ -54,11 +68,14 @@ export default {
     button.start,
     button.stop
       outlined-button()
+      width: 5.25rem;
 
     button.mark-done
       contained-button()
 
     &.done { text-decoration: line-through; }
-    &.started { color: orange; }
+    &.started {
+      background-color: rgba(orange, 0.2);
+    }
 
 </style>
