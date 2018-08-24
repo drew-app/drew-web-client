@@ -28,6 +28,17 @@ describe('TaskListItem.vue', () => {
       expect(wrapper.classes()).toContain('done')
     })
 
+    it('should hide the action buttons if it is done', () => {
+      const wrapper = shallowMount(TaskListItem, {
+        localVue,
+        propsData: {
+          task: { id: 1, title: 'A task', done: true }
+        }
+      })
+
+      expect(wrapper.find('.actions').exists()).toBe(false)
+    })
+
     it('should apply the start class if it has been started', () => {
       const wrapper = shallowMount(TaskListItem, {
         localVue,
@@ -76,11 +87,11 @@ describe('TaskListItem.vue', () => {
   })
 
   describe('Start', () => {
-    it('should flag the task done when the start button is clicked', () => {
+    it('should flag the task started when the start button is clicked', () => {
       const wrapper = shallowMount(TaskListItem, {
         localVue,
         propsData: {
-          task: { id: 1, title: 'A task', done: true }
+          task: { id: 1, title: 'A task', done: false }
         }
       })
 
@@ -95,7 +106,7 @@ describe('TaskListItem.vue', () => {
       const wrapper = shallowMount(TaskListItem, {
         localVue,
         propsData: {
-          task: { id: 1, title: 'A task', done: true }
+          task: { id: 1, title: 'A task', done: false }
         }
       })
       wrapper.setData({ started: true })

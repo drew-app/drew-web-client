@@ -1,9 +1,13 @@
 <template>
   <li class="task-list-item" v-bind:class="{ done: task.done, started: started }">
-    {{task.title}}
-    <button class="mark-done" @click='markDone'>Done</button>
-    <button v-if="!started" class="start" @click='start'>Start</button>
-    <button v-else class="stop" @click='stop'>Stop</button>
+    <div class="title">
+      {{task.title}}
+    </div>
+    <div v-if="!task.done" class="actions">
+      <button class="mark-done" @click='markDone'>Done</button>
+      <button v-if="!started" class="start" @click='start'>Start</button>
+      <button v-else class="stop" @click='stop'>Stop</button>
+    </div>
   </li>
 </template>
 
@@ -34,11 +38,27 @@ export default {
 }
 </script>
 
-<style scoped>
-  .done {
-    text-decoration: line-through;
-  }
-  .started {
-    color: orange;
-  }
+<style lang="stylus" scoped>
+  @require '~@/assets/stylesheets/modules/button'
+
+  li.task-list-item
+    .title { font-size: 1.2rem; }
+    .actions { text-align: right; }
+
+    button.start,
+    button.stop,
+    button.mark-done
+      margin-left: 0.25rem;
+      &:first-child { margin-left: 0 }
+
+    button.start,
+    button.stop
+      outlined-button()
+
+    button.mark-done
+      contained-button()
+
+    &.done { text-decoration: line-through; }
+    &.started { color: orange; }
+
 </style>
