@@ -1,11 +1,11 @@
 <template>
-  <li class="task-list-item" v-bind:class="{ done: task.done, started: started }">
+  <li class="task-list-item" v-bind:class="{ done: task.done, started: task.started }">
     <div class="title">
       {{task.title}}
     </div>
     <div v-if="!task.done" class="actions">
       <button class="mark-done" @click='markDone'>Done</button>
-      <button v-if="!started" class="start" @click='start'>Start</button>
+      <button v-if="!task.started" class="start" @click='start'>Start</button>
       <button v-else class="stop" @click='stop'>Stop</button>
     </div>
   </li>
@@ -14,11 +14,6 @@
 <script>
 export default {
   name: 'TaskListItem',
-  data: function () {
-    return {
-      started: false
-    }
-  },
   props: {
     task: {
       type: Object,
@@ -26,14 +21,15 @@ export default {
     }
   },
   methods: {
-    markDone: function () {
+    _updateTask: function (updateAttrs) {
       this.$store.dispatch('tasks/updateTask', {
         id: this.task.id,
-        updatedAttributes: { done: true }
+        updatedAttributes: updateAttrs
       })
     },
-    start: function () { this.started = true },
-    stop: function () { this.started = false }
+    markDone: function () { this._updateTask({ done: true }) },
+    start: function () { this._updateTask({ started: true }) },
+    stop: function () { this._updateTask({ started: false }) }
   }
 }
 </script>

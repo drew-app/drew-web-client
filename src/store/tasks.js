@@ -1,4 +1,13 @@
-import { merge } from 'lodash'
+import {merge} from 'lodash'
+
+export function newTask (attrs = {}) {
+  return merge(
+    {
+      title: '',
+      done: false,
+      started: false
+    }, attrs)
+}
 
 export const state = {
   all: []
@@ -14,11 +23,13 @@ export const mutations = {
   loadAll (state, tasks) {
     state.all = tasks
   },
-  addTask (state, task) {
-    state.all.push(task)
+
+  addTask (state, taskAttributes) {
+    state.all.push(newTask(taskAttributes))
   },
+
   updateTask (state, taskAttributes) {
-    let { id } = taskAttributes
+    let {id} = taskAttributes
     let taskToBeUpdated = state.all.find((task) => task.id === id)
     merge(taskToBeUpdated, taskAttributes)
   }
@@ -30,6 +41,7 @@ export const actions = {
       context.commit('loadAll', response.data)
     })
   },
+
   addTask (context, payload) {
     this.$axios.post('tasks', {
       task: {
@@ -39,7 +51,8 @@ export const actions = {
       context.commit('addTask', response.data)
     })
   },
-  updateTask (context, { id, updatedAttributes }) {
+
+  updateTask (context, {id, updatedAttributes}) {
     this.$axios.put(`tasks/${id}`, {
       task: updatedAttributes
     }).then(response => {

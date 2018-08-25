@@ -1,4 +1,5 @@
 import {state, mutations, getters, actions} from '@/store/tasks'
+import {buildTask, buildTasks} from '../../factories/task-factory'
 import {clone} from 'lodash'
 
 const defaultState = {...state}
@@ -7,12 +8,7 @@ describe('tasks store', () => {
   describe('getters', () => {
     describe('all', () => {
       const {all} = getters
-      const tasks = [
-        {id: 1, title: 'One task', done: false},
-        {id: 2, title: 'Two task', done: true},
-        {id: 3, title: 'Red tasks', done: false},
-        {id: 4, title: 'Blue tasks', done: false}
-      ]
+      const tasks = buildTasks(4)
 
       let currentState
       beforeEach(() => {
@@ -31,12 +27,9 @@ describe('tasks store', () => {
   describe('todo', () => {
     const {todo} = getters
 
-    const tasks = [
-      {id: 1, title: 'One task', done: false},
-      {id: 2, title: 'Two task', done: true},
-      {id: 3, title: 'Red tasks', done: false},
-      {id: 4, title: 'Blue tasks', done: false}
-    ]
+    const undoneTasks = buildTasks(3)
+    const doneTasks = buildTasks(2, {done: true})
+    const tasks = undoneTasks.concat(doneTasks)
 
     let currentState
     beforeEach(() => {
@@ -47,8 +40,11 @@ describe('tasks store', () => {
       const subject = todo(currentState)
 
       expect(subject.length).toEqual(3)
+
       const ids = subject.map((task) => task.id)
-      expect(ids).toEqual(expect.arrayContaining([1, 3, 4]))
+      const expectedIds = undoneTasks.map((task) => task.id)
+
+      expect(ids).toEqual(expect.arrayContaining(expectedIds))
     })
   })
 
@@ -60,12 +56,7 @@ describe('tasks store', () => {
 
       beforeEach(() => {
         currentState = {...defaultState}
-        loadedTasks = [
-          {id: 1, title: 'One task', done: false},
-          {id: 2, title: 'Two task', done: true},
-          {id: 3, title: 'Red tasks', done: false},
-          {id: 4, title: 'Blue tasks', done: false}
-        ]
+        loadedTasks = buildTasks(4)
       })
 
       it('with default state', () => {
@@ -81,7 +72,7 @@ describe('tasks store', () => {
 
       beforeEach(() => {
         currentState = {...defaultState}
-        savedTask = {id: 5, title: 'Foo task', done: false}
+        savedTask = buildTask({id: 5, title: 'Foo task', done: false})
       })
 
       it('with default state', () => {
@@ -93,7 +84,7 @@ describe('tasks store', () => {
     describe('updateTask', () => {
       const {updateTask} = mutations
       let currentState
-      let taskToBeUpdated = {id: 1, title: 'Foo task', done: false}
+      let taskToBeUpdated = buildTask({id: 1, title: 'Foo task'})
 
       beforeEach(() => {
         currentState = {...defaultState, all: [clone(taskToBeUpdated)]}
@@ -115,12 +106,14 @@ describe('tasks store', () => {
         updateTask(currentState, {id: 1, title: 'Bar task'})
 
         let updatedTask = currentState.all.find((task) => task.id === 1)
-        // Updated attributes
         expect(updatedTask.title).toEqual('Bar task')
+      })
 
-        // Unchanged attributes
-        expect(updatedTask.done).toEqual(false)
-        expect(updatedTask.id).toEqual(1)
+      it('should change the started flag', () => {
+        updateTask(currentState, {id: 1, started: true})
+
+        let updatedTask = currentState.all.find((task) => task.id === 1)
+        expect(updatedTask.started).toEqual(true)
       })
     })
   })
@@ -128,12 +121,7 @@ describe('tasks store', () => {
   describe('actions', () => {
     describe('loadAll', () => {
       const {loadAll} = actions
-      const taskList = [
-        {id: 1, title: 'One task', done: false},
-        {id: 2, title: 'Two task', done: true},
-        {id: 3, title: 'Red task', done: false},
-        {id: 4, title: 'Blue task', done: false}
-      ]
+      const taskList = buildTasks(4)
 
       it('should commit the loadAll mutation with the tasks', (done) => {
         const apiPromise = new Promise((resolve, reject) => resolve({data: taskList}))
@@ -161,8 +149,8 @@ describe('tasks store', () => {
 
     describe('addTask', () => {
       const {addTask} = actions
-      const taskName = 'Do something!'
-      const apiResponse = {id: 1, title: taskName, done: false}
+      const taskTitle = 'Do something!'
+      const apiResponse = buildTask({title: taskTitle})
 
       it('should commit the addTask mutation with the new task', (done) => {
         const apiPromise = new Promise((resolve, reject) => resolve({data: apiResponse}))
@@ -171,7 +159,7 @@ describe('tasks store', () => {
           $axios: {
             post: jest.fn((resource, params) => {
               expect(resource).toEqual('tasks')
-              expect(params).toEqual({task: {title: taskName}})
+              expect(params).toEqual({task: {title: taskTitle}})
               return apiPromise
             })
           }
@@ -185,9 +173,10 @@ describe('tasks store', () => {
           })
         }
 
-        addTask.call(bindingContext, storeContext, {title: taskName})
+        addTask.call(bindingContext, storeContext, {title: taskTitle})
       })
     })
+
     describe('updateTask', () => {
       const {updateTask} = actions
 
@@ -215,7 +204,7 @@ describe('tasks store', () => {
           })
         }
 
-        updateTask.call(bindingContext, storeContext, {id: 1, updatedAttributes: { done: true }})
+        updateTask.call(bindingContext, storeContext, {id: 1, updatedAttributes: {done: true}})
       })
     })
   })
