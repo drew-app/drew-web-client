@@ -1,12 +1,12 @@
 <template>
-  <li class="task-list-item" v-bind:class="{ done: task.done, started: task.started }">
+  <li class="task-list-item" v-bind:class="{ done: task.done, started: task.started }" @click='openDetails'>
     <div class="title">
       {{task.title}}
     </div>
     <div v-if="!task.done" class="actions">
-      <button class="mark-done" @click='markDone'>Done</button>
-      <button v-if="!task.started" class="start" @click='start'>Start</button>
-      <button v-else class="stop" @click='stop'>Stop</button>
+      <button class="mark-done" @click.stop='markDone'>Done</button>
+      <button v-if="!task.started" class="start" @click.stop='start'>Start</button>
+      <button v-else class="stop" @click.stop='stop'>Stop</button>
     </div>
   </li>
 </template>
@@ -29,7 +29,10 @@ export default {
     },
     markDone: function () { this._updateTask({ done: true }) },
     start: function () { this._updateTask({ started: true }) },
-    stop: function () { this._updateTask({ started: false }) }
+    stop: function () { this._updateTask({ started: false }) },
+    openDetails: function () {
+      this.$router.push({path: `/tasks/${this.task.id}`})
+    }
   }
 }
 </script>
@@ -41,8 +44,12 @@ export default {
     display: flex;
     flex-wrap: wrap;
     justify-content: space-between;
-    margin-top: -(short-space);
     padding: short-space;
+    cursor: pointer;
+
+    &:hover {
+      background-color: rgba(main-color, 0.05)
+    }
 
     .title {
       font-size: 1.2rem;

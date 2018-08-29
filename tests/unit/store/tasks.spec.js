@@ -22,29 +22,47 @@ describe('tasks store', () => {
         expect(subject.length).toEqual(4)
       })
     })
-  })
 
-  describe('todo', () => {
-    const {todo} = getters
+    describe('find', () => {
+      const {find} = getters
 
-    const undoneTasks = buildTasks(3)
-    const doneTasks = buildTasks(2, {done: true})
-    const tasks = undoneTasks.concat(doneTasks)
+      const task = buildTask()
 
-    let currentState
-    beforeEach(() => {
-      currentState = {...defaultState, all: tasks}
+      const tasks = buildTasks(3)
+      tasks.push(task)
+      tasks.concat(buildTasks(3))
+
+      const currentState = {...defaultState, all: tasks}
+
+      it('should return the task by id', () => {
+        const subject = find(currentState)(task.id)
+
+        expect(subject).toEqual(task)
+      })
     })
 
-    it('should return tasks that are undone', () => {
-      const subject = todo(currentState)
+    describe('todo', () => {
+      const {todo} = getters
 
-      expect(subject.length).toEqual(3)
+      const undoneTasks = buildTasks(3)
+      const doneTasks = buildTasks(2, {done: true})
+      const tasks = undoneTasks.concat(doneTasks)
 
-      const ids = subject.map((task) => task.id)
-      const expectedIds = undoneTasks.map((task) => task.id)
+      let currentState
+      beforeEach(() => {
+        currentState = {...defaultState, all: tasks}
+      })
 
-      expect(ids).toEqual(expect.arrayContaining(expectedIds))
+      it('should return tasks that are undone', () => {
+        const subject = todo(currentState)
+
+        expect(subject.length).toEqual(3)
+
+        const ids = subject.map((task) => task.id)
+        const expectedIds = undoneTasks.map((task) => task.id)
+
+        expect(ids).toEqual(expect.arrayContaining(expectedIds))
+      })
     })
   })
 

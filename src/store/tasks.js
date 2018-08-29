@@ -16,7 +16,11 @@ export const state = {
 export const getters = {
   all: state => state.all,
 
-  todo: state => state.all.filter(task => !task.done)
+  todo: state => state.all.filter(task => !task.done),
+
+  find: state => id => {
+    return state.all.find(task => task.id === id)
+  }
 }
 
 export const mutations = {

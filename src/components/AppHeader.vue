@@ -9,21 +9,21 @@
 
 <script>
 export default {
-  name: 'MainNav'
+  name: 'AppHeader'
 }
 </script>
 
 <style scoped lang="stylus">
   @require '~@/assets/stylesheets/includes'
+  @require '~@/assets/stylesheets/modules/app-bar'
 
   #app-header
+    app-bar()
+
     display: flex;
     justify-content: space-between
 
     align-items: baseline;
-
-    padding: long-space;
-    background-color: main-color;
 
     #app-header__logo { font-size: 2rem }
 

@@ -10,9 +10,9 @@ export default {
 }
 </script>
 
-<style scoped>
-  nav ul {
-    display: flex;
-    flex-direction: row;
-  }
+<style lang="stylus" scoped>
+  @require '~@/assets/stylesheets/includes'
+
+  #dashboard
+    padding: long-space;
 </style>

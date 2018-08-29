@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils'
+import {shallowMount, createLocalVue} from '@vue/test-utils'
 import Vuex from 'vuex'
 import Tasks from '@/views/Tasks.vue'
 
@@ -34,6 +34,7 @@ describe('Tasks.vue', () => {
       localVue,
       stubs: {
         'add-task': true,
+        'router-view': true,
         'task-list': {
           name: 'task-list',
           template: '<div class="task-list-stub">{{tasks}}</div>',

@@ -1,8 +1,8 @@
 <template>
   <div id="app">
-    <app-header/>
+    <router-view name="header"/>
     <div id="main">
-      <router-view/>
+      <router-view name="main"/>
     </div>
   </div>
 </template>
@@ -21,6 +21,7 @@ export default {
   @require '~@/assets/stylesheets/includes'
 
   #app
-    #main { padding: long-space; }
+    #main
+      position: relative;
 
 </style>

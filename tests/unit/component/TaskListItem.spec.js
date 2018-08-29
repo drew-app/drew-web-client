@@ -1,4 +1,4 @@
-import { shallowMount, createLocalVue } from '@vue/test-utils'
+import {shallowMount, createLocalVue} from '@vue/test-utils'
 import Vuex from 'vuex'
 import TaskListItem from '@/components/TaskListItem'
 import {buildTask, resetTaskFactorySequence} from '../../factories/task-factory'
@@ -9,9 +9,12 @@ localVue.use(Vuex)
 describe('TaskListItem.vue', () => {
   let actions
   let store
+  let router
 
   beforeEach(() => {
+    router = {push: jest.fn()}
     actions = {updateTask: jest.fn()}
+
     store = new Vuex.Store({
       modules: {
         tasks: {
@@ -23,12 +26,17 @@ describe('TaskListItem.vue', () => {
     })
   })
 
-  afterEach(() => { resetTaskFactorySequence() })
+  afterEach(() => {
+    resetTaskFactorySequence()
+  })
 
   function createWrapper (taskProps) {
     return shallowMount(TaskListItem, {
       localVue,
       store,
+      mocks: {
+        $router: router
+      },
       propsData: {task: buildTask(taskProps)}
     })
   }
@@ -60,6 +68,20 @@ describe('TaskListItem.vue', () => {
     })
   })
 
+  describe('Open details', () => {
+    it('should navigate to the task page if clicked', () => {
+      const wrapper = createWrapper({id: 5})
+
+      wrapper.find('li.task-list-item').trigger('click')
+
+      expect(router.push).toHaveBeenCalled()
+
+      const payload = router.push.mock.calls[0][0]
+
+      expect(payload.path).toEqual('/tasks/5')
+    })
+  })
+
   function verifyUpdate (updateAttrs) {
     expect(actions.updateTask).toHaveBeenCalled()
 
@@ -68,6 +90,7 @@ describe('TaskListItem.vue', () => {
     expect(payload.id).toEqual(1)
     expect(payload.updatedAttributes).toEqual(updateAttrs)
   }
+
   describe('Mark done', () => {
     it('should send the updateTask action with {done: true} for the task when the done button is clicked', () => {
       const wrapper = createWrapper()
@@ -84,7 +107,7 @@ describe('TaskListItem.vue', () => {
 
       wrapper.find('button.start').trigger('click')
 
-      verifyUpdate({ started: true })
+      verifyUpdate({started: true})
     })
   })
 
@@ -94,7 +117,7 @@ describe('TaskListItem.vue', () => {
 
       wrapper.find('button.stop').trigger('click')
 
-      verifyUpdate({ started: false })
+      verifyUpdate({started: false})
     })
   })
 })

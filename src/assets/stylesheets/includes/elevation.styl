@@ -12,6 +12,8 @@ elevation(dp = 0, color = black)
   ambient-z-value = elevation-vars.ambient-map[key]
   ambient-color = rgba(color, elevation-vars.ambient-opacity)
 
+  z-index: dp;
+  position: relative;
   box-shadow: umbra-z-value umbra-color,
               penumbra-z-value penumbra-color,
               ambient-z-value ambient-color

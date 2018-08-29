@@ -30,7 +30,7 @@ export default {
     max-width: 64rem;
 
     li
+      padding-top: medium-space;
       padding-bottom: short-space;
       border-bottom: 1px solid #ccc;
-      margin-bottom: medium-space;
 </style>

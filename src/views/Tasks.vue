@@ -1,11 +1,14 @@
 <template>
   <div id="tasks">
-    <h1>Tasks</h1>
-    <div class="filters">
-      <label>Show done <input id="show-done" type='checkbox' v-model="showDone"/></label>
+    <div id="tasks__main">
+      <h1>Tasks</h1>
+      <div class="filters">
+        <label>Show done <input id="show-done" type='checkbox' v-model="showDone"/></label>
+      </div>
+      <task-list v-bind:tasks="tasks"/>
+      <add-task/>
     </div>
-    <task-list v-bind:tasks="tasks"/>
-    <add-task/>
+    <router-view/>
   </div>
 </template>
 
@@ -40,5 +43,15 @@ export default {
   @require '~@/assets/stylesheets/includes'
 
   #tasks
+    display: grid;
+    grid-template-rows: 1fr;
+    grid-template-columns: 1fr;
+
+    & > * {
+      grid-row: 1;
+      grid-column: 1;
+    }
+
+    #tasks__main { padding: long-space; }
     .filters { margin: long-space 0; }
 </style>
