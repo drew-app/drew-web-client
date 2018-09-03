@@ -1,6 +1,6 @@
 import {state, mutations, getters, actions} from '@/store/tasks'
 import {buildTask, buildTasks} from '../../factories/task-factory'
-import {clone} from 'lodash'
+import {clone, merge} from 'lodash'
 
 const defaultState = {...state}
 
@@ -73,13 +73,49 @@ describe('tasks store', () => {
       let loadedTasks
 
       beforeEach(() => {
-        currentState = {...defaultState}
         loadedTasks = buildTasks(4)
       })
 
       it('with default state', () => {
+        currentState = {...defaultState}
+
         loadAll(currentState, loadedTasks)
         expect(currentState.all).toEqual(loadedTasks)
+      })
+
+      it('with stale tasks', () => {
+        currentState = merge({}, defaultState, {all: [buildTasks(3)]})
+
+        loadAll(currentState, loadedTasks)
+        expect(currentState.all).toEqual(loadedTasks)
+      })
+    })
+
+    describe('loadTask', () => {
+      const {loadTask} = mutations
+      let currentState
+      let existingTask
+      let loadedTask
+
+      beforeEach(() => {
+        loadedTask = buildTask({id: 5, title: 'Updated from server'})
+      })
+
+      it('with default state', () => {
+        currentState = {...defaultState}
+
+        loadTask(currentState, loadedTask)
+
+        expect(currentState.all).toEqual([loadedTask])
+      })
+
+      it('replacing existing task', () => {
+        existingTask = buildTask({id: 5, title: 'Old and busted'})
+        currentState = merge({}, defaultState, {all: [existingTask]})
+
+        loadTask(currentState, loadedTask)
+
+        expect(currentState.all.find((task) => task.id === 5).title).toEqual('Updated from server')
       })
     })
 
@@ -162,6 +198,34 @@ describe('tasks store', () => {
         }
 
         loadAll.call(bindingContext, storeContext)
+      })
+    })
+
+    describe('loadTask', () => {
+      const {loadTask} = actions
+      const task = buildTask({id: 5})
+
+      it('should commit the load mutation with the task', (done) => {
+        const apiPromise = new Promise((resolve, reject) => resolve({data: task}))
+
+        const bindingContext = {
+          $axios: {
+            get: jest.fn((resource) => {
+              expect(resource).toEqual('tasks/5')
+              return apiPromise
+            })
+          }
+        }
+
+        const storeContext = {
+          commit: jest.fn((mutation, payload) => {
+            expect(mutation).toEqual('loadTask')
+            expect(payload).toEqual(task)
+            done()
+          })
+        }
+
+        loadTask.call(bindingContext, storeContext, 5)
       })
     })
 

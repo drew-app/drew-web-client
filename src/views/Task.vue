@@ -30,6 +30,7 @@ export default {
     }
   },
   created () {
+    this.$store.dispatch('tasks/loadTask', this.id)
   }
 }
 </script>

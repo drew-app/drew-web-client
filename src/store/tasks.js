@@ -28,6 +28,12 @@ export const mutations = {
     state.all = tasks
   },
 
+  loadTask (state, loadedTask) {
+    const tasks = state.all.filter((task) => task.id !== loadedTask.id)
+    tasks.push(loadedTask)
+    state.all = tasks
+  },
+
   addTask (state, taskAttributes) {
     state.all.push(newTask(taskAttributes))
   },
@@ -43,6 +49,12 @@ export const actions = {
   loadAll (context) {
     this.$axios.get('tasks').then(response => {
       context.commit('loadAll', response.data)
+    })
+  },
+
+  loadTask (context, id) {
+    this.$axios.get(`tasks/${id}`).then(response => {
+      context.commit('loadTask', response.data)
     })
   },
 
