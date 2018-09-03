@@ -1,8 +1,8 @@
 <template>
   <header id="app-header">
-    <a id="app-header__logo" href="/">Drew-App</a>
+    <router-link to="/" id="app-header__logo">Drew-App</router-link>
     <nav>
-      <a href="/tasks">Tasks</a>
+      <router-link to="/tasks">Tasks</router-link>
     </nav>
   </header>
 </template>

@@ -34,7 +34,8 @@ export default new Router({
         header: BackHeader,
         main: Task
       },
-      props: { main: true, header: false }
+      props: { main: true, header: false },
+      meta: { detailView: true }
     }
   ]
 })

@@ -1,18 +1,24 @@
 <template>
   <div id="app">
-    <router-view name="header"/>
+    <div id="header-wrapper">
+      <transition name="fade" mode="out-in">
+        <router-view name="header"/>
+      </transition>
+    </div>
     <div id="main">
-      <router-view name="main"/>
+      <router-transition>
+        <router-view name="main"/>
+      </router-transition>
     </div>
   </div>
 </template>
 <script>
-import AppHeader from '@/components/AppHeader.vue'
+import RouterTransition from '@/components/RouterTransition'
 
 export default {
   name: 'drew-app',
   components: {
-    AppHeader
+    RouterTransition
   }
 }
 </script>
@@ -21,7 +27,15 @@ export default {
   @require '~@/assets/stylesheets/includes'
 
   #app
-    #main
+    #main, #header-wrapper
       position: relative;
+      display: grid;
 
+      & > *
+        grid-row: 1
+        grid-column: 1
+
+    #header-wrapper
+      background-color: main-color;
+      elevation(4)
 </style>
