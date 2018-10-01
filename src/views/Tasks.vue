@@ -54,19 +54,18 @@ export default {
   @require '~@/assets/stylesheets/includes'
 
   #tasks
-    display: grid
-    grid-template-columns: 1fr
-    grid-template-rows: 1fr
-
-    #tasks__main-wrapper, #tasks__details
-      grid-column: 1
-      grid-row: 1
-
     #tasks__main
       padding: long-space
 
     #tasks__details
       elevation(8)
+
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 100vw;
+      overflow: scroll;
 
     .filters
       margin: long-space 0

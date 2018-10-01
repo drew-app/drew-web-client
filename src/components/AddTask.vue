@@ -1,7 +1,7 @@
 <template>
-  <form id="add-task" @submit.prevent="addTask">
+  <form id="add-task" @submit.prevent="addTask" @click="focusNewTask">
     <input v-model="task.title" ref="task_title" name="task_title" placeholder="New task">
-    <div class='actions' @click="focusNewTask">
+    <div class='actions'>
       <button type="submit">Save</button>
     </div>
   </form>
