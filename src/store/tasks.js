@@ -1,4 +1,5 @@
-import {merge} from 'lodash'
+import Vue from 'vue'
+import { keyBy, merge } from 'lodash'
 
 export function newTask (attrs = {}) {
   return merge(
@@ -10,69 +11,65 @@ export function newTask (attrs = {}) {
 }
 
 export const state = {
-  all: []
+  all: {}
 }
 
 export const getters = {
-  all: state => state.all,
-
-  todo: state => state.all.filter(task => !task.done),
+  all: state => {
+    return Object.values(state.all)
+  },
+  todo: (state, getters) => {
+    return getters.all.filter(task => !task.done)
+  },
 
   find: state => id => {
-    return state.all.find(task => task.id === id)
+    return state.all[id]
   }
 }
 
 export const mutations = {
   loadAll (state, tasks) {
-    state.all = tasks
+    state.all = keyBy(tasks, 'id')
   },
 
   loadTask (state, loadedTask) {
-    const tasks = state.all.filter((task) => task.id !== loadedTask.id)
-    tasks.push(loadedTask)
-    state.all = tasks
-  },
-
-  addTask (state, taskAttributes) {
-    state.all.push(newTask(taskAttributes))
+    Vue.set(state.all, loadedTask.id, loadedTask)
   },
 
   updateTask (state, taskAttributes) {
-    let {id} = taskAttributes
-    let taskToBeUpdated = state.all.find((task) => task.id === id)
-    merge(taskToBeUpdated, taskAttributes)
+    merge(
+      state.all[taskAttributes.id],
+      taskAttributes
+    )
   }
 }
 
 export const actions = {
-  loadAll (context) {
-    this.$axios.get('tasks').then(response => {
-      context.commit('loadAll', response.data)
+  loadAll ({ commit }) {
+    this.$axios.get('tasks').then(({ data }) => {
+      commit('loadAll', data)
     })
   },
 
-  loadTask (context, id) {
-    this.$axios.get(`tasks/${id}`).then(response => {
-      context.commit('loadTask', response.data)
+  loadTask ({ commit }, id) {
+    this.$axios.get(`tasks/${id}`).then(({ data }) => {
+      commit('loadTask', data)
     })
   },
 
-  addTask (context, payload) {
+  addTask ({ commit }, payload) {
     this.$axios.post('tasks', {
-      task: {
-        title: payload.title
-      }
-    }).then(response => {
-      context.commit('addTask', response.data)
+      task: payload
+    }).then(({ data }) => {
+      commit('loadTask', data)
     })
   },
 
-  updateTask (context, {id, updatedAttributes}) {
+  updateTask ({ commit }, { id, updatedAttributes }) {
     this.$axios.put(`tasks/${id}`, {
       task: updatedAttributes
-    }).then(response => {
-      context.commit('updateTask', response.data)
+    }).then(({ data }) => {
+      commit('updateTask', data)
     })
   }
 }

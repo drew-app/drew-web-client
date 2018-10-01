@@ -26,6 +26,4 @@ export default {
     align-items: baseline;
 
     #app-header__logo { font-size: 2rem }
-
-    a { color: text-on-main-color }
 </style>

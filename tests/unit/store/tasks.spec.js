@@ -1,22 +1,34 @@
-import {state, mutations, getters, actions} from '@/store/tasks'
-import {buildTask, buildTasks} from '../../factories/task-factory'
-import {clone, merge} from 'lodash'
+import { createLocalVue } from '@vue/test-utils'
+import tasks from '@/store/tasks'
+import { buildTask, buildTasks } from '../../factories/task-factory'
+import { keyBy } from 'lodash'
+import Vuex from 'vuex'
 
-const defaultState = {...state}
+const localVue = createLocalVue()
+localVue.use(Vuex)
+
+function buildStore (taskObjs = []) {
+  const store = new Vuex.Store({
+    modules: { tasks },
+    strict: true
+  })
+  store.replaceState({ tasks: { all: keyBy(taskObjs, 'id') } })
+  return store
+}
 
 describe('tasks store', () => {
+  let store
   describe('getters', () => {
     describe('all', () => {
-      const {all} = getters
-      const tasks = buildTasks(4)
+      let tasks
 
-      let currentState
       beforeEach(() => {
-        currentState = {...defaultState, all: tasks}
+        tasks = buildTasks(4)
+        store = buildStore(tasks)
       })
 
       it('should return all tasks', () => {
-        const subject = all(currentState)
+        const subject = store.getters['tasks/all']
 
         expect(subject).toEqual(tasks)
         expect(subject.length).toEqual(4)
@@ -24,37 +36,37 @@ describe('tasks store', () => {
     })
 
     describe('find', () => {
-      const {find} = getters
+      let task
+      let tasks
 
-      const task = buildTask()
+      beforeEach(() => {
+        task = buildTask()
 
-      const tasks = buildTasks(3)
-      tasks.push(task)
-      tasks.concat(buildTasks(3))
+        tasks = buildTasks(3)
+        tasks.push(task)
+        tasks.concat(buildTasks(3))
 
-      const currentState = {...defaultState, all: tasks}
+        store = buildStore(tasks)
+      })
 
       it('should return the task by id', () => {
-        const subject = find(currentState)(task.id)
+        const subject = store.getters['tasks/find'](task.id)
 
         expect(subject).toEqual(task)
       })
     })
 
     describe('todo', () => {
-      const {todo} = getters
-
       const undoneTasks = buildTasks(3)
-      const doneTasks = buildTasks(2, {done: true})
+      const doneTasks = buildTasks(2, { done: true })
       const tasks = undoneTasks.concat(doneTasks)
 
-      let currentState
       beforeEach(() => {
-        currentState = {...defaultState, all: tasks}
+        store = buildStore(tasks)
       })
 
       it('should return tasks that are undone', () => {
-        const subject = todo(currentState)
+        const subject = store.getters['tasks/todo']
 
         expect(subject.length).toEqual(3)
 
@@ -68,8 +80,6 @@ describe('tasks store', () => {
 
   describe('mutations', () => {
     describe('loadAll', () => {
-      const {loadAll} = mutations
-      let currentState
       let loadedTasks
 
       beforeEach(() => {
@@ -77,77 +87,68 @@ describe('tasks store', () => {
       })
 
       it('with default state', () => {
-        currentState = {...defaultState}
+        store = buildStore()
+        store.commit('tasks/loadAll', loadedTasks)
 
-        loadAll(currentState, loadedTasks)
-        expect(currentState.all).toEqual(loadedTasks)
+        expect(store.state.tasks.all).toEqual(keyBy(loadedTasks, 'id'))
       })
 
       it('with stale tasks', () => {
-        currentState = merge({}, defaultState, {all: [buildTasks(3)]})
+        store = buildStore(buildTasks(3))
+        store.commit('tasks/loadAll', loadedTasks)
 
-        loadAll(currentState, loadedTasks)
-        expect(currentState.all).toEqual(loadedTasks)
+        expect(store.state.tasks.all).toEqual(keyBy(loadedTasks, 'id'))
       })
     })
 
     describe('loadTask', () => {
-      const {loadTask} = mutations
-      let currentState
-      let existingTask
       let loadedTask
 
       beforeEach(() => {
-        loadedTask = buildTask({id: 5, title: 'Updated from server'})
+        loadedTask = buildTask({ id: 5, title: 'Updated from server' })
       })
 
       it('with default state', () => {
-        currentState = {...defaultState}
+        store = buildStore()
+        store.commit('tasks/loadTask', loadedTask)
 
-        loadTask(currentState, loadedTask)
-
-        expect(currentState.all).toEqual([loadedTask])
+        expect(store.state.tasks.all[loadedTask.id]).toEqual(loadedTask)
       })
 
       it('replacing existing task', () => {
-        existingTask = buildTask({id: 5, title: 'Old and busted'})
-        currentState = merge({}, defaultState, {all: [existingTask]})
+        const existingTask = buildTask({ id: 5, title: 'Old and busted' })
+        store = buildStore([existingTask])
+        store.commit('tasks/loadTask', loadedTask)
 
-        loadTask(currentState, loadedTask)
+        const subject = store.getters['tasks/find'](5)
 
-        expect(currentState.all.find((task) => task.id === 5).title).toEqual('Updated from server')
-      })
-    })
-
-    describe('addTask', () => {
-      const {addTask} = mutations
-      let currentState
-      let savedTask
-
-      beforeEach(() => {
-        currentState = {...defaultState}
-        savedTask = buildTask({id: 5, title: 'Foo task', done: false})
+        expect(subject.title).toEqual('Updated from server')
       })
 
-      it('with default state', () => {
-        addTask(currentState, savedTask)
-        expect(currentState.all).toEqual([savedTask])
+      it('should update the getters', () => {
+        const someTasks = buildTasks(3)
+        store = buildStore(someTasks)
+        store.commit('tasks/loadTask', loadedTask)
+
+        const subject = store.getters['tasks/all']
+
+        expect(subject.length).toEqual(4)
       })
     })
 
     describe('updateTask', () => {
-      const {updateTask} = mutations
-      let currentState
-      let taskToBeUpdated = buildTask({id: 1, title: 'Foo task'})
+      let taskToBeUpdated
 
       beforeEach(() => {
-        currentState = {...defaultState, all: [clone(taskToBeUpdated)]}
+        taskToBeUpdated = buildTask({ id: 1, title: 'Foo task' })
+        store = buildStore([taskToBeUpdated])
       })
 
       it('should change the done flag', () => {
-        updateTask(currentState, {id: 1, done: true})
+        store.commit('tasks/updateTask', { id: 1, done: true })
 
-        let updatedTask = currentState.all.find((task) => task.id === 1)
+        let updatedTask = store.state.tasks.all[1]
+
         // Updated attributes
         expect(updatedTask.done).toEqual(true)
 
@@ -157,16 +158,18 @@ describe('tasks store', () => {
       })
 
       it('should change the title', () => {
-        updateTask(currentState, {id: 1, title: 'Bar task'})
+        store.commit('tasks/updateTask', { id: 1, title: 'Bar task' })
 
-        let updatedTask = currentState.all.find((task) => task.id === 1)
+        let updatedTask = store.state.tasks.all[1]
+
         expect(updatedTask.title).toEqual('Bar task')
       })
 
       it('should change the started flag', () => {
-        updateTask(currentState, {id: 1, started: true})
+        store.commit('tasks/updateTask', { id: 1, started: true })
 
-        let updatedTask = currentState.all.find((task) => task.id === 1)
+        let updatedTask = store.state.tasks.all[1]
+
         expect(updatedTask.started).toEqual(true)
       })
     })
@@ -174,119 +177,100 @@ describe('tasks store', () => {
 
   describe('actions', () => {
     describe('loadAll', () => {
-      const {loadAll} = actions
-      const taskList = buildTasks(4)
-
       it('should commit the loadAll mutation with the tasks', (done) => {
-        const apiPromise = new Promise((resolve, reject) => resolve({data: taskList}))
+        const taskList = buildTasks(4)
 
-        const bindingContext = {
-          $axios: {
-            get: jest.fn((resource) => {
-              expect(resource).toEqual('tasks')
-              return apiPromise
-            })
-          }
-        }
+        const $axios = {
+          get: jest.fn((resource) => {
+            expect(resource).toEqual('tasks')
 
-        const storeContext = {
-          commit: jest.fn((mutation, payload) => {
-            expect(mutation).toEqual('loadAll')
-            expect(payload).toEqual(taskList)
-            done()
+            return new Promise((resolve, reject) => resolve({ data: taskList }))
           })
         }
 
-        loadAll.call(bindingContext, storeContext)
+        tasks.mutations.loadAll = jest.fn((_, tasks) => {
+          expect(tasks).toEqual(taskList)
+          done()
+        })
+        store = buildStore()
+        store.$axios = $axios
+
+        store.dispatch('tasks/loadAll')
       })
     })
 
     describe('loadTask', () => {
-      const {loadTask} = actions
-      const task = buildTask({id: 5})
-
       it('should commit the load mutation with the task', (done) => {
-        const apiPromise = new Promise((resolve, reject) => resolve({data: task}))
+        const task = buildTask({ id: 5 })
+        const $axios = {
+          get: jest.fn((resource) => {
+            expect(resource).toEqual('tasks/5')
 
-        const bindingContext = {
-          $axios: {
-            get: jest.fn((resource) => {
-              expect(resource).toEqual('tasks/5')
-              return apiPromise
-            })
-          }
-        }
-
-        const storeContext = {
-          commit: jest.fn((mutation, payload) => {
-            expect(mutation).toEqual('loadTask')
-            expect(payload).toEqual(task)
-            done()
+            return new Promise((resolve, reject) => resolve({ data: task }))
           })
         }
 
-        loadTask.call(bindingContext, storeContext, 5)
+        tasks.mutations.loadTask = jest.fn((_, payload) => {
+          expect(payload).toEqual(payload)
+          done()
+        })
+
+        store = buildStore()
+        store.$axios = $axios
+
+        store.dispatch('tasks/loadTask', 5)
       })
     })
 
     describe('addTask', () => {
-      const {addTask} = actions
-      const taskTitle = 'Do something!'
-      const apiResponse = buildTask({title: taskTitle})
-
       it('should commit the addTask mutation with the new task', (done) => {
-        const apiPromise = new Promise((resolve, reject) => resolve({data: apiResponse}))
+        const taskTitle = 'Do something!'
+        const apiResponse = buildTask({ title: taskTitle })
+        const $axios = {
+          post: jest.fn((resource, params) => {
+            expect(resource).toEqual('tasks')
+            expect(params).toEqual({ task: { title: taskTitle } })
 
-        const bindingContext = {
-          $axios: {
-            post: jest.fn((resource, params) => {
-              expect(resource).toEqual('tasks')
-              expect(params).toEqual({task: {title: taskTitle}})
-              return apiPromise
-            })
-          }
-        }
-
-        const storeContext = {
-          commit: jest.fn((mutation, payload) => {
-            expect(mutation).toEqual('addTask')
-            expect(payload).toEqual(apiResponse)
-            done()
+            return new Promise((resolve, reject) => resolve({ data: apiResponse }))
           })
         }
 
-        addTask.call(bindingContext, storeContext, {title: taskTitle})
+        tasks.mutations.loadTask = jest.fn((_, payload) => {
+          expect(payload).toEqual(apiResponse)
+          done()
+        })
+
+        store = buildStore()
+        store.$axios = $axios
+
+        store.dispatch('tasks/addTask', { title: taskTitle })
       })
     })
 
     describe('updateTask', () => {
-      const {updateTask} = actions
-
       it('should commit the updateTask mutation with the updated attributes', (done) => {
-        let apiResponse = {id: 1, title: 'Foo task', done: true}
-        const apiPromise = new Promise((resolve, reject) => {
-          resolve({data: apiResponse})
-        })
+        let apiResponse = { id: 1, title: 'Foo task', done: true }
 
-        const bindingContext = {
-          $axios: {
-            put: jest.fn((resource, params) => {
-              expect(resource).toEqual('tasks/1')
-              expect(params).toEqual({task: {done: true}})
-              return apiPromise
+        const $axios = {
+          put: jest.fn((resource, params) => {
+            expect(resource).toEqual('tasks/1')
+            expect(params).toEqual({ task: { done: true } })
+
+            return new Promise((resolve, reject) => {
+              resolve({ data: apiResponse })
             })
-          }
-        }
-
-        const storeContext = {
-          commit: jest.fn((mutation, payload) => {
-            expect(mutation).toEqual('updateTask')
-            expect(payload).toEqual(apiResponse)
-            done()
           })
         }
 
-        updateTask.call(bindingContext, storeContext, {id: 1, updatedAttributes: {done: true}})
+        tasks.mutations.updateTask = jest.fn((_, payload) => {
+          expect(payload).toEqual(apiResponse)
+          done()
+        })
+
+        store = buildStore()
+        store.$axios = $axios
+
+        store.dispatch('tasks/updateTask', { id: 1, updatedAttributes: { done: true } })
       })
     })
   })
