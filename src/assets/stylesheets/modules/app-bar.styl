@@ -1,4 +1,17 @@
 @require '../includes'
 
-app-bar()
+app-bar(style = 'app')
   padding: long-space;
+
+  elevation(4);
+
+  a { font-size: 2rem; }
+
+  if style == 'app'
+    background-color: main-color;
+
+    a { color: text-on-main-color }
+  else if style == 'simple'
+    background-color: #eee;
+
+    a { color: #000; }

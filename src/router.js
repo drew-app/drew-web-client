@@ -1,7 +1,5 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import AppHeader from './components/AppHeader'
-import BackHeader from './components/BackHeader'
 import Dashboard from './views/Dashboard.vue'
 import Tasks from './views/Tasks.vue'
 import Task from './views/Task.vue'
@@ -14,28 +12,20 @@ export default new Router({
     {
       path: '/',
       name: 'dashboard',
-      components: {
-        header: AppHeader,
-        main: Dashboard
-      }
+      component: Dashboard
     },
     {
       path: '/tasks',
       name: 'tasks',
-      components: {
-        header: AppHeader,
-        main: Tasks
-      }
-    },
-    {
-      path: '/tasks/:id',
-      name: 'task',
-      components: {
-        header: BackHeader,
-        main: Task
-      },
-      props: { main: true, header: false },
-      meta: { detailView: true }
+      component: Tasks,
+      children: [
+        {
+          path: ':id',
+          name: 'task',
+          component: Task,
+          props: (route) => ({ id: parseInt(route.params.id) })
+        }
+      ]
     }
   ]
 })

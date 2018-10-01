@@ -10,6 +10,7 @@ describe('Tasks.vue', () => {
   let taskGetters
   let store
   let wrapper
+  let route
 
   beforeEach(() => {
     taskActions = {
@@ -29,9 +30,18 @@ describe('Tasks.vue', () => {
         }
       }
     })
+    route = {
+      matched: [{ path: '/tasks' }]
+    }
+  })
+
+  const mountWrapper = () => {
     wrapper = shallowMount(Tasks, {
       store,
       localVue,
+      mocks: {
+        $route: route
+      },
       stubs: {
         'add-task': true,
         'router-view': true,
@@ -42,23 +52,44 @@ describe('Tasks.vue', () => {
         }
       }
     })
-  })
+  }
 
   describe('created', () => {
     it('should trigger the tasks/loadAll action', () => {
+      mountWrapper()
+
       expect(taskActions.loadAll).toHaveBeenCalled()
     })
   })
 
-  it('should render a task-list with the todo tasks', () => {
-    const taskList = wrapper.find('.task-list-stub')
-    expect(taskList.text()).toEqual('todoTasks')
+  describe('tasks', () => {
+    it('should render a task-list with the todo tasks', () => {
+      mountWrapper()
+
+      const taskList = wrapper.find('.task-list-stub')
+      expect(taskList.text()).toEqual('todoTasks')
+    })
+
+    it('should render a task-list with all the tasks if showDone is checked', () => {
+      mountWrapper()
+      wrapper.find('#show-done').trigger('click')
+
+      const taskList = wrapper.find('.task-list-stub')
+      expect(taskList.text()).toEqual('allTasks')
+    })
   })
 
-  it('should render a task-list with all the tasks if showDone is checked', () => {
-    wrapper.find('#show-done').trigger('click')
+  describe('showDetails', () => {
+    it('should hide the details if there is no sub-route matched', () => {
+      mountWrapper()
+      expect(wrapper.find('#tasks__details').exists()).toBe(false)
+    })
 
-    const taskList = wrapper.find('.task-list-stub')
-    expect(taskList.text()).toEqual('allTasks')
+    it('should show the details with a sub route', () => {
+      route = {matched: [{path: '/tasks'}, {path: '/tasks/:id'}]}
+      mountWrapper()
+
+      expect(wrapper.find('#tasks__details').exists()).toBe(true)
+    })
   })
 })

@@ -1,7 +1,7 @@
 <template>
   <form id="add-task" @submit.prevent="addTask">
-    <input v-model="task.title" name="task_title" placeholder="New task">
-    <div class='actions'>
+    <input v-model="task.title" ref="task_title" name="task_title" placeholder="New task">
+    <div class='actions' @click="focusNewTask">
       <button type="submit">Save</button>
     </div>
   </form>
@@ -21,6 +21,9 @@ export default {
     addTask () {
       this.$store.dispatch('tasks/addTask', {...this.$data.task})
       this.$data.task = { title: '' }
+    },
+    focusNewTask () {
+      this.$refs['task_title'].focus()
     }
   }
 }
@@ -28,7 +31,6 @@ export default {
 
 <style lang="stylus" scoped>
   @require '~@/assets/stylesheets/includes'
-  @require '~@/assets/stylesheets/modules/text_input'
   @require '~@/assets/stylesheets/modules/button'
 
   #add-task
