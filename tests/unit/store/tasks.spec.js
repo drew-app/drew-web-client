@@ -4,6 +4,8 @@ import { buildTask, buildTasks } from '../../factories/task-factory'
 import { keyBy } from 'lodash'
 import Vuex from 'vuex'
 
+require('../../matchers')
+
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
@@ -56,24 +58,48 @@ describe('tasks store', () => {
       })
     })
 
-    describe('todo', () => {
-      const undoneTasks = buildTasks(3)
-      const doneTasks = buildTasks(2, { done: true })
-      const tasks = undoneTasks.concat(doneTasks)
+    describe('search', () => {
+      const undoneTasks = buildTasks(3, { done: false, started: false })
+      const startedTasks = buildTasks(4, { done: false, started: true })
+      const doneUnstartedTasks = buildTasks(5, { done: true, started: false })
+      const doneStartedTasks = buildTasks(6, { done: true, started: true })
+      const allTasks = [...undoneTasks, ...startedTasks, ...doneUnstartedTasks, ...doneStartedTasks]
+
+      let search
 
       beforeEach(() => {
-        store = buildStore(tasks)
+        store = buildStore(allTasks)
+        search = store.getters['tasks/search']
       })
 
-      it('should return tasks that are undone', () => {
-        const subject = store.getters['tasks/todo']
+      it('should return the undone and started tasks by default', () => {
+        const subject = search()
 
-        expect(subject.length).toEqual(3)
+        expect(subject).toContainExactly([...undoneTasks, ...startedTasks])
+      })
 
-        const ids = subject.map((task) => task.id)
-        const expectedIds = undoneTasks.map((task) => task.id)
+      it('should return all the tasks if the includeDone flag is set true', () => {
+        const subject = search({ includeDone: true })
 
-        expect(ids).toEqual(expect.arrayContaining(expectedIds))
+        expect(subject).toContainExactly(allTasks)
+      })
+
+      it('should return undone and started tasks if the started field is set true', () => {
+        const subject = search({ started: true })
+
+        expect(subject).toContainExactly(startedTasks)
+      })
+
+      it('should return undone and unstarted if the started field is set false', () => {
+        const subject = search({ started: false })
+
+        expect(subject).toContainExactly(undoneTasks)
+      })
+
+      it('should return all started tasks if the started field is set true and the includeDone flag is set true', () => {
+        const subject = search({ started: true, includeDone: true })
+
+        expect(subject).toContainExactly([...startedTasks, ...doneStartedTasks])
       })
     })
   })

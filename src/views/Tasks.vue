@@ -5,7 +5,8 @@
       <div id="tasks__main">
         <h1>Tasks</h1>
         <div class="filters">
-          <label>Show done <input id="show-done" type='checkbox' v-model="showDone"/></label>
+          <label><input id="tasks__show-done" type='checkbox' v-model="showDone"/> Show done</label>
+          <label><input id="tasks__focus-started" type="checkbox" v-model="focusStarted"/> Focus started</label>
         </div>
         <task-list v-bind:tasks="tasks"/>
         <add-task/>
@@ -26,19 +27,19 @@ import AppHeader from '@/components/AppHeader'
 
 export default {
   name: 'tasks',
-  components: {AppHeader, AddTask, TaskList},
+  components: { AppHeader, AddTask, TaskList },
   data: function () {
     return {
-      showDone: false
+      showDone: false,
+      focusStarted: false
     }
   },
   computed: {
     tasks () {
-      if (this.$data.showDone) {
-        return this.$store.getters['tasks/all']
-      } else {
-        return this.$store.getters['tasks/todo']
-      }
+      const options = { includeDone: this.$data.showDone }
+      if (this.$data.focusStarted) { options['started'] = true }
+
+      return this.$store.getters['tasks/search'](options)
     },
     showDetails () {
       return this.$route.matched.length > 1
@@ -69,4 +70,7 @@ export default {
 
     .filters
       margin: long-space 0
+
+      label
+        margin-right: 1rem;
 </style>

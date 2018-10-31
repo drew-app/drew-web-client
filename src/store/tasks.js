@@ -18,8 +18,12 @@ export const getters = {
   all: state => {
     return Object.values(state.all)
   },
-  todo: (state, getters) => {
-    return getters.all.filter(task => !task.done)
+
+  search: (state, getters) => ({ includeDone = false, started } = {}) => {
+    return getters.all.filter(task => {
+      return (includeDone || !task.done) &&
+        (started === undefined || task.started === started)
+    })
   },
 
   find: state => id => {
