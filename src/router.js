@@ -1,18 +1,35 @@
 import Vue from 'vue'
 import Router from 'vue-router'
 import Dashboard from './views/Dashboard.vue'
+import Login from './views/Login.vue'
 import Tasks from './views/Tasks.vue'
 import Task from './views/Task.vue'
 
+import { authService } from './plugins/auth-plugin'
+
 Vue.use(Router)
 
-export default new Router({
+const router = new Router({
   mode: 'history',
   routes: [
     {
       path: '/',
       name: 'dashboard',
       component: Dashboard
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+      meta: { unsecured: true }
+    },
+    {
+      path: '/auth_callback',
+      name: 'auth callback',
+      beforeEnter: (to, from, next) => {
+        authService.handleAuthentication()
+      },
+      meta: { unsecured: true }
     },
     {
       path: '/tasks',
@@ -29,3 +46,13 @@ export default new Router({
     }
   ]
 })
+
+router.beforeEach(function (to, from, next) {
+  if (to.meta.unsecured || authService.isAuthenticated()) {
+    next()
+  } else {
+    next('/login')
+  }
+})
+
+export default router
