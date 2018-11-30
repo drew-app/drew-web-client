@@ -2,7 +2,6 @@
   <div id="login">
     <h1>Drew-App</h1>
     <a href="#" @click="login">Log in</a>
-    <a href="#">Sign up</a>
   </div>
 </template>
 
