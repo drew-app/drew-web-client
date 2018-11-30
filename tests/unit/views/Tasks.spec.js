@@ -44,6 +44,7 @@ describe('Tasks.vue', () => {
       stubs: {
         'add-task': true,
         'router-view': true,
+        'd-icon': true,
         'task-list': {
           name: 'task-list',
           template: '<div class="task-list-stub">{{tasks}}</div>',
@@ -93,7 +94,7 @@ describe('Tasks.vue', () => {
     })
 
     it('should show the details with a sub route', () => {
-      route = {matched: [{path: '/tasks'}, {path: '/tasks/:id'}]}
+      route = {matched: [{path: '/'}, {path: '/tasks'}, {path: '/tasks/:id'}]}
       mountWrapper()
 
       expect(wrapper.find('#tasks__details').exists()).toBe(true)

@@ -4,6 +4,7 @@ import Dashboard from './views/Dashboard.vue'
 import Login from './views/Login.vue'
 import Tasks from './views/Tasks.vue'
 import Task from './views/Task.vue'
+import Layout from './views/Layout.vue'
 
 import { authService } from './plugins/auth-plugin'
 
@@ -12,11 +13,6 @@ Vue.use(Router)
 const router = new Router({
   mode: 'history',
   routes: [
-    {
-      path: '/',
-      name: 'dashboard',
-      component: Dashboard
-    },
     {
       path: '/login',
       name: 'login',
@@ -32,15 +28,26 @@ const router = new Router({
       meta: { unsecured: true }
     },
     {
-      path: '/tasks',
-      name: 'tasks',
-      component: Tasks,
+      path: '/',
+      component: Layout,
       children: [
         {
-          path: ':id',
-          name: 'task',
-          component: Task,
-          props: (route) => ({ id: parseInt(route.params.id) })
+          path: '/',
+          name: 'dashboard',
+          component: Dashboard
+        },
+        {
+          path: '/tasks',
+          name: 'tasks',
+          component: Tasks,
+          children: [
+            {
+              path: ':id',
+              name: 'task',
+              component: Task,
+              props: (route) => ({ id: parseInt(route.params.id) })
+            }
+          ]
         }
       ]
     }

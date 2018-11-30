@@ -1,8 +1,21 @@
 .slide-in-from-right-enter, .slide-in-from-right-leave-to
   transform: translateX(100%)
 .slide-in-from-right-enter-active, .slide-in-from-right-leave-active
-  transition: transform 0.3s ease
+  transition: transform 0.5s ease
   z-index: 8
+
+.slide-in-from-left-with-underlay-enter, .slide-in-from-left-with-underlay-leave-to
+  .underlay
+    opacity: 0
+  .content
+    transform: translateX(-100%)
+.slide-in-from-left-with-underlay-enter-active, .slide-in-from-left-with-underlay-leave-active
+  .underlay
+    transition: opacity 0.3s ease
+  .content
+    transition: transform 0.5s ease
+    z-index: 8
+
 
 .fade-enter, .fade-leave-to
   opacity: 0

@@ -34,7 +34,10 @@ describe('Task.vue', () => {
     wrapper = mount(Task, {
       store,
       localVue,
-      propsData: { id }
+      propsData: { id },
+      stubs: {
+        'd-icon': true
+      }
     })
   })
 
