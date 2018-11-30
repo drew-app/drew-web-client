@@ -36,10 +36,7 @@ export class AuthService {
   }
 
   setSession (authResult) {
-    // Set the time that the Access Token will expire at
-    let expiresAt = JSON.stringify(
-      authResult.expiresIn * 1000 + new Date().getTime()
-    )
+    let expiresAt = JSON.stringify(authResult.expiresIn * 1000 + new Date().getTime())
     localStorage.setItem(ACCESS_TOKEN, authResult.accessToken)
     localStorage.setItem(ID_TOKEN, authResult.idToken)
     localStorage.setItem(EXPIRES_AT, expiresAt)
@@ -47,33 +44,28 @@ export class AuthService {
   }
 
   logout () {
-    // // Clear access token and ID token from local storage
-    // localStorage.removeItem(ACCESS_TOKEN)
-    // localStorage.removeItem(ID_TOKEN)
-    // localStorage.removeItem(EXPIRES_AT)
-    // this.userProfile = null
-    // // navigate to the home route
-    // store.commit('logout')
-    // router.push('/landing')
+    localStorage.removeItem(ACCESS_TOKEN)
+    localStorage.removeItem(ID_TOKEN)
+    localStorage.removeItem(EXPIRES_AT)
+
+    store.commit('user/logout')
+    router.push('/landing')
   }
 
   isAuthenticated () {
-    // Check whether the current time is past the
-    // access token's expiry time
     const expiresAt = JSON.parse(localStorage.getItem(EXPIRES_AT))
     return new Date().getTime() < expiresAt
-
-    // return false
   }
 
   updateAuthdUser () {
     const accessToken = localStorage.getItem(ACCESS_TOKEN)
     const idToken = localStorage.getItem(ID_TOKEN)
+
     if (!!accessToken && !!idToken && this.isAuthenticated()) {
-    //   this.auth0.client.userInfo(accessToken, (err, user) => {
-    //     if (err) { console.log(err) }
-    //     store.commit('login', user.name)
-    //   })
+      this.auth0.client.userInfo(accessToken, (err, user) => {
+        if (err) { console.log(err) }
+        store.commit('user/login', { name: user.name, avatarUrl: user.picture })
+      })
       store.$axios.defaults.headers.common['Authorization'] = `Bearer: ${idToken}`
     }
   }

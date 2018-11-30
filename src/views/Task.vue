@@ -3,11 +3,8 @@
     <header>
       <a id="task__back" @click.once="$router.go(-1)">◀</a>
       <div class="actions">
-        <a>
-          <font-awesome-icon
-            id="task__edit"
-            @click="startEdit"
-            :icon="['fal', 'edit']"></font-awesome-icon>
+        <a id="task__edit" @click="startEdit">
+          <d-icon icon="edit"></d-icon>
         </a>
       </div>
     </header>
