@@ -1,6 +1,6 @@
 <template>
   <form id="add-task" @submit.prevent="addTask" @click="focusNewTask">
-    <input v-model="task.title" ref="task_title" name="task_title" placeholder="New task">
+    <input v-model="taskInput" ref="task-input" name="task-input" placeholder="New task">
     <div class='actions'>
       <button type="submit">Save</button>
     </div>
@@ -8,22 +8,29 @@
 </template>
 
 <script>
+import { excludeHashTags, getHashTags } from '@/lib/hashtag'
+
 export default {
   name: 'AddTask',
   data: function () {
     return {
-      task: {
-        title: ''
-      }
+      taskInput: ''
     }
   },
   methods: {
-    addTask () {
-      this.$store.dispatch('tasks/addTask', {...this.$data.task})
-      this.$data.task = { title: '' }
+    addTask: function () {
+      const input = this.$data.taskInput
+
+      const payload = {
+        task: { title: excludeHashTags(input) },
+        tags: getHashTags(input)
+      }
+
+      this.$store.dispatch('tasks/addTask', payload)
+      this.$data.taskInput = ''
     },
     focusNewTask () {
-      this.$refs['task_title'].focus()
+      this.$refs['task-input'].focus()
     }
   }
 }

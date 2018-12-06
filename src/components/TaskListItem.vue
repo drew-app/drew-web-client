@@ -1,5 +1,14 @@
 <template>
-  <li class="task-list-item" v-bind:class="{ done: task.done, started: task.started }" @click='openDetails'>
+  <li class="task-list-item" v-bind:class="{ done: task.done, started: task.started, tagged: !!task.tags }" @click='openDetails'>
+    <div class="tags">
+      <span class="tag"
+            v-for="tag in task.tags"
+            :data-tag-name="tag.name"
+            :key="tag.name"
+            @click.stop="filterTag(tag)">
+        {{ tag.name }}
+      </span>
+    </div>
     <div class="title">
       {{task.title}}
     </div>
@@ -21,18 +30,17 @@ export default {
     }
   },
   methods: {
-    _updateTask: function (updateAttrs) {
+    _updateTask  (updateAttrs) {
       this.$store.dispatch('tasks/updateTask', {
         id: this.task.id,
         updatedAttributes: updateAttrs
       })
     },
-    markDone: function () { this._updateTask({ done: true }) },
-    start: function () { this._updateTask({ started: true }) },
-    stop: function () { this._updateTask({ started: false }) },
-    openDetails: function () {
-      this.$router.push({path: `/tasks/${this.task.id}`})
-    }
+    markDone  () { this._updateTask({ done: true }) },
+    start  () { this._updateTask({ started: true }) },
+    stop  () { this._updateTask({ started: false }) },
+    openDetails  () { this.$router.push({path: `/tasks/${this.task.id}`}) },
+    filterTag (tag) { this.$store.commit('tasks/filterTagName', tag.name) }
   }
 }
 </script>
@@ -49,6 +57,16 @@ export default {
 
     &:hover {
       background-color: rgba(main-color, 0.05)
+    }
+
+    .tag {
+      display: inline
+      background-color: #ddd
+      color: #222
+      padding: 0.25rem 0.5rem
+      font-size: 0.8rem
+      border-radius: 0.75rem
+      margin-right: short-space
     }
 
     .title {

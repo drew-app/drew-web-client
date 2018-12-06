@@ -6,35 +6,33 @@ const localVue = createLocalVue()
 localVue.use(Vuex)
 
 describe('Tasks.vue', () => {
-  let taskActions
-  let taskGetters
   let store
   let wrapper
   let route
 
-  beforeEach(() => {
-    taskActions = {
+  let stubs = {
+    state: {
+      search: {}
+    },
+    actions: {
       loadAll: jest.fn()
+    },
+    getters: {
+      search: () => 'Tasks!'
+    },
+    mutations: {
+      filterDone: jest.fn(),
+      filterStarted: jest.fn(),
+      filterTagName: jest.fn()
     }
-    taskGetters = {
-      search: () => (options) => Object.keys(options).map((key) => `${key}:${options[key]}`).join(',')
-    }
-    store = new Vuex.Store({
-      modules: {
-        tasks: {
-          namespaced: true,
-          state: {},
-          actions: taskActions,
-          getters: taskGetters
-        }
-      }
-    })
-    route = {
-      matched: [{ path: '/tasks' }]
-    }
-  })
+  }
 
-  const mountWrapper = () => {
+  const mountWrapper = (
+    storeOverrides = {},
+    route = { matched: [{ path: '/' }, { path: '/tasks' }] }
+  ) => {
+    store = new Vuex.Store({ modules: { tasks: {...stubs, ...storeOverrides, namespaced: true} } })
+
     wrapper = shallowMount(Tasks, {
       store,
       localVue,
@@ -58,44 +56,81 @@ describe('Tasks.vue', () => {
     it('should trigger the tasks/loadAll action', () => {
       mountWrapper()
 
-      expect(taskActions.loadAll).toHaveBeenCalled()
+      expect(stubs.actions.loadAll).toHaveBeenCalled()
     })
   })
 
   describe('tasks', () => {
-    it('should render a task-list with the todo tasks', () => {
+    it('should render a task-list with the search results', () => {
       mountWrapper()
 
       const taskList = wrapper.find('.task-list-stub')
-      expect(taskList.text()).toEqual('includeDone:false')
+      expect(taskList.text()).toEqual('Tasks!')
+    })
+  })
+
+  describe('showDone', () => {
+    it('should mirror the filter state', () => {
+      mountWrapper({state: { search: { includeDone: true } }})
+
+      expect(wrapper.find('#tasks__show-done').element.checked).toBe(true)
     })
 
-    it('should render a task-list with all the tasks if showDone is checked', () => {
+    it('should commit the filterDone mutation', () => {
       mountWrapper()
       wrapper.find('#tasks__show-done').trigger('click')
 
-      const taskList = wrapper.find('.task-list-stub')
-      expect(taskList.text()).toEqual('includeDone:true')
+      expect(stubs.mutations.filterDone).toHaveBeenCalled()
+    })
+  })
+
+  describe('focusStarted', () => {
+    it('should mirror the filter state', () => {
+      mountWrapper({state: { search: { started: true } }})
+
+      expect(wrapper.find('#tasks__focus-started').element.checked).toBe(true)
     })
 
-    it('should render a task-list with just the started tasks if focusStarted is checked', () => {
+    it('should commit the filterStarted mutation', () => {
       mountWrapper()
       wrapper.find('#tasks__focus-started').trigger('click')
 
-      const taskList = wrapper.find('.task-list-stub')
-      expect(taskList.text()).toEqual('includeDone:false,started:true')
+      expect(stubs.mutations.filterStarted).toHaveBeenCalled()
+    })
+  })
+
+  describe('tagFilter', () => {
+    it('should show the clear tag filter button if filter is applied', () => {
+      mountWrapper({state: { search: { tagName: 'home' } }})
+
+      expect(wrapper.find('.clear-tag-filter').exists()).toBe(true)
+    })
+
+    it('should hide the clear tag filter button if filter is applied', () => {
+      mountWrapper()
+
+      expect(wrapper.find('.clear-tag-filter').exists()).toBe(false)
+    })
+
+    it('should commit the filterTagName mutation', () => {
+      mountWrapper({state: { search: { tagName: 'home' } }})
+
+      wrapper.find('.clear-tag-filter').trigger('click')
+
+      expect(stubs.mutations.filterTagName).toHaveBeenCalled()
     })
   })
 
   describe('showDetails', () => {
     it('should hide the details if there is no sub-route matched', () => {
       mountWrapper()
+
       expect(wrapper.find('#tasks__details').exists()).toBe(false)
     })
 
     it('should show the details with a sub route', () => {
       route = {matched: [{path: '/'}, {path: '/tasks'}, {path: '/tasks/:id'}]}
-      mountWrapper()
+      mountWrapper({}, route)
 
       expect(wrapper.find('#tasks__details').exists()).toBe(true)
     })
