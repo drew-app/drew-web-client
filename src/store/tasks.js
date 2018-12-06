@@ -95,7 +95,8 @@ export const actions = {
 
   addTask ({ commit }, payload) {
     this.$axios.post('tasks', {
-      task: payload
+      task: payload.task,
+      tags: payload.tags
     }).then(({ data }) => {
       commit('loadTask', data)
     })
