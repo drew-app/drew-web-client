@@ -1,5 +1,7 @@
 import Vue from 'vue'
-import { keyBy, merge } from 'lodash'
+import { keyBy, merge, isUndefined } from 'lodash'
+
+const isDefined = (obj) => !isUndefined(obj)
 
 export function newTask (attrs = {}) {
   return merge(
@@ -10,7 +12,36 @@ export function newTask (attrs = {}) {
     }, attrs)
 }
 
+export class TaskSearch {
+  filterDone (task) { return this.includeDone || !task.done }
+  filterStarted (task) { return task.started === this.started }
+  filterTagName (task) {
+    return task.tags.some((tag) => {
+      return tag.name.localeCompare(this.tagName, 'en', {sensitivity: 'base'}) === 0
+    })
+  }
+
+  constructor ({includeDone, started, tagName} = {}) {
+    this.includeDone = includeDone
+    this.started = started
+    this.tagName = tagName
+  }
+
+  filter (task) {
+    let included = this.filterDone(task)
+    if (included && isDefined(this.started)) { included = this.filterStarted(task) }
+    if (included && isDefined(this.tagName)) { included = this.filterTagName(task) }
+
+    return included
+  }
+
+  filterAll (tasks) {
+    return tasks.filter(task => this.filter(task))
+  }
+}
+
 export const state = {
+  search: new TaskSearch(),
   all: {}
 }
 
@@ -19,11 +50,8 @@ export const getters = {
     return Object.values(state.all)
   },
 
-  search: (state, getters) => ({ includeDone = false, started } = {}) => {
-    return getters.all.filter(task => {
-      return (includeDone || !task.done) &&
-        (started === undefined || task.started === started)
-    })
+  search: (state, getters) => {
+    return state.search.filterAll(getters.all)
   },
 
   find: state => id => {
@@ -45,7 +73,11 @@ export const mutations = {
       state.all[taskAttributes.id],
       taskAttributes
     )
-  }
+  },
+
+  filterDone (state) { state.search.includeDone = !state.search.includeDone },
+  filterStarted (state) { state.search.started = !state.search.started },
+  filterTagName (state, newTagName) { state.search.tagName = newTagName }
 }
 
 export const actions = {

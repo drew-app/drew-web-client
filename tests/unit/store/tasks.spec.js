@@ -1,5 +1,5 @@
 import { createLocalVue } from '@vue/test-utils'
-import tasks from '@/store/tasks'
+import tasks, { TaskSearch } from '@/store/tasks'
 import { buildTask, buildTasks } from '../../factories/task-factory'
 import { keyBy } from 'lodash'
 import Vuex from 'vuex'
@@ -9,12 +9,17 @@ require('../../matchers')
 const localVue = createLocalVue()
 localVue.use(Vuex)
 
-function buildStore (taskObjs = []) {
+function buildStore (taskObjs = [], searchOverride = {}) {
   const store = new Vuex.Store({
     modules: { tasks },
     strict: true
   })
-  store.replaceState({ tasks: { all: keyBy(taskObjs, 'id') } })
+  store.replaceState({
+    tasks: {
+      all: keyBy(taskObjs, 'id'),
+      search: new TaskSearch(searchOverride)
+    }
+  })
   return store
 }
 
@@ -59,18 +64,18 @@ describe('tasks store', () => {
     })
 
     describe('search', () => {
-      const undoneTasks = buildTasks(3, { done: false, started: false })
+      const taggedTasks = buildTasks(2, { done: false, started: false, tags: [{ id: 1, name: 'home' }] })
+      const untaggedTasks = buildTasks(3, { done: false, started: false, tags: [] })
+      const undoneTasks = [...taggedTasks, ...untaggedTasks]
       const startedTasks = buildTasks(4, { done: false, started: true })
       const doneUnstartedTasks = buildTasks(5, { done: true, started: false })
       const doneStartedTasks = buildTasks(6, { done: true, started: true })
       const allTasks = [...undoneTasks, ...startedTasks, ...doneUnstartedTasks, ...doneStartedTasks]
 
-      let search
-
-      beforeEach(() => {
-        store = buildStore(allTasks)
-        search = store.getters['tasks/search']
-      })
+      function search (params) {
+        store = buildStore(allTasks, params)
+        return store.getters['tasks/search']
+      }
 
       it('should return the undone and started tasks by default', () => {
         const subject = search()
@@ -100,6 +105,18 @@ describe('tasks store', () => {
         const subject = search({ started: true, includeDone: true })
 
         expect(subject).toContainExactly([...startedTasks, ...doneStartedTasks])
+      })
+
+      it('should return all tasks with the correct tag by name', () => {
+        const subject = search({ tagName: 'home' })
+
+        expect(subject).toContainExactly(taggedTasks)
+      })
+
+      it('should return all tasks with the correct tag by name even if capitalized differently', () => {
+        const subject = search({ tagName: 'Home' })
+
+        expect(subject).toContainExactly(taggedTasks)
       })
     })
   })
@@ -199,6 +216,54 @@ describe('tasks store', () => {
         expect(updatedTask.started).toEqual(true)
       })
     })
+
+    describe('filterDone', () => {
+      it('should turn the includeDone flag on if off', () => {
+        store = buildStore([], { includeDone: false })
+        store.commit('tasks/filterDone')
+
+        expect(store.state.tasks.search.includeDone).toEqual(true)
+      })
+
+      it('should turn the includeDone flag off if on', () => {
+        store = buildStore([], { includeDone: true })
+        store.commit('tasks/filterDone')
+
+        expect(store.state.tasks.search.includeDone).toEqual(false)
+      })
+    })
+
+    describe('filterStarted', () => {
+      it('should turn the started flag on if off', () => {
+        store = buildStore([], { started: false })
+        store.commit('tasks/filterStarted')
+
+        expect(store.state.tasks.search.started).toEqual(true)
+      })
+
+      it('should turn the started flag off if on', () => {
+        store = buildStore([], { started: true })
+        store.commit('tasks/filterStarted')
+
+        expect(store.state.tasks.search.started).toEqual(false)
+      })
+    })
+
+    describe('filterTagName', () => {
+      it('should apply the tagNameFilter', () => {
+        store = buildStore()
+        store.commit('tasks/filterTagName', 'home')
+
+        expect(store.state.tasks.search.tagName).toEqual('home')
+      })
+
+      it('should remove the fitler if called without a value', () => {
+        store = buildStore({ tagName: 'home' })
+        store.commit('tasks/filterTagName')
+
+        expect(store.state.tasks.search.tagName).toEqual(undefined)
+      })
+    })
   })
 
   describe('actions', () => {
@@ -269,7 +334,32 @@ describe('tasks store', () => {
         store = buildStore()
         store.$axios = $axios
 
-        store.dispatch('tasks/addTask', { title: taskTitle })
+        store.dispatch('tasks/addTask', { task: { title: taskTitle } })
+      })
+
+      it('should commit the addTask mutation with the new task with tags', (done) => {
+        const taskTitle = 'Do something!'
+        const tags = ['tagName1', 'tagName2']
+        const apiResponse = buildTask({ title: taskTitle, tags: [{name: 'tagName1'}, {name: 'tagName2'}] })
+
+        const $axios = {
+          post: jest.fn((resource, params) => {
+            expect(resource).toEqual('tasks')
+            expect(params).toEqual({ task: { title: taskTitle }, tags: tags })
+
+            return new Promise((resolve, reject) => resolve({ data: apiResponse }))
+          })
+        }
+
+        tasks.mutations.loadTask = jest.fn((_, payload) => {
+          expect(payload).toEqual(apiResponse)
+          done()
+        })
+
+        store = buildStore()
+        store.$axios = $axios
+
+        store.dispatch('tasks/addTask', { task: { title: taskTitle }, tags: tags })
       })
     })
 

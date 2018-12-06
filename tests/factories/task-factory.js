@@ -1,17 +1,20 @@
-import {merge} from 'lodash'
-import {newTask} from '@/store/tasks'
+import { merge, omit } from 'lodash'
+import { newTask } from '@/store/tasks'
 
 let taskFactoryIdSequenceNum = 1
 
 export function buildTask (overrideAttrs = {}) {
+  const attrs = omit(overrideAttrs, ['withTags'])
+
   let returnVal = merge(
     newTask({
       id: taskFactoryIdSequenceNum,
       title: `Task number ${taskFactoryIdSequenceNum}`,
       done: false,
-      started: false
+      started: false,
+      tags: []
     }),
-    overrideAttrs
+    attrs
   )
 
   taskFactoryIdSequenceNum++
