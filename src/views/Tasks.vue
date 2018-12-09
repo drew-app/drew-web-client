@@ -33,7 +33,13 @@ export default {
     },
     focusStarted: {
       get () { return this._taskSearchObject.started },
-      set () { this.$store.commit('tasks/filterStarted') }
+      set: function (value) {
+        if (value) {
+          this.$store.commit('tasks/filterStarted')
+        } else {
+          this.$store.commit('tasks/disableFilterStarted')
+        }
+      }
     },
     showClearTagFilter () { return !!this._taskSearchObject.tagName },
     showDetails () { return this.$route.matched.length > 2 }

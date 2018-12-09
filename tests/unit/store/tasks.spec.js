@@ -261,7 +261,21 @@ describe('tasks store', () => {
         store = buildStore({ tagName: 'home' })
         store.commit('tasks/filterTagName')
 
-        expect(store.state.tasks.search.tagName).toEqual(undefined)
+        expect(store.state.tasks.search.tagName).toEqual(null)
+      })
+    })
+
+    describe('disableFilterStarted', () => {
+      it('should disable the started filter', () => {
+        store = buildStore([], { started: true })
+        store.commit('tasks/disableFilterStarted')
+
+        expect(store.state.tasks.search.started).toBe(null)
+
+        store = buildStore({ started: false })
+        store.commit('tasks/disableFilterStarted')
+
+        expect(store.state.tasks.search.started).toEqual(null)
       })
     })
   })

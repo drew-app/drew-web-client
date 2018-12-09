@@ -1,7 +1,5 @@
 import Vue from 'vue'
-import { keyBy, merge, isUndefined } from 'lodash'
-
-const isDefined = (obj) => !isUndefined(obj)
+import { keyBy, merge } from 'lodash'
 
 export function newTask (attrs = {}) {
   return merge(
@@ -21,7 +19,7 @@ export class TaskSearch {
     })
   }
 
-  constructor ({includeDone, started, tagName} = {}) {
+  constructor ({includeDone = null, started = null, tagName = null} = {}) {
     this.includeDone = includeDone
     this.started = started
     this.tagName = tagName
@@ -29,8 +27,8 @@ export class TaskSearch {
 
   filter (task) {
     let included = this.filterDone(task)
-    if (included && isDefined(this.started)) { included = this.filterStarted(task) }
-    if (included && isDefined(this.tagName)) { included = this.filterTagName(task) }
+    if (included && this.started !== null) { included = this.filterStarted(task) }
+    if (included && this.tagName !== null) { included = this.filterTagName(task) }
 
     return included
   }
@@ -76,8 +74,11 @@ export const mutations = {
   },
 
   filterDone (state) { state.search.includeDone = !state.search.includeDone },
+
   filterStarted (state) { state.search.started = !state.search.started },
-  filterTagName (state, newTagName) { state.search.tagName = newTagName }
+  disableFilterStarted (state) { state.search.started = null },
+
+  filterTagName (state, newTagName = null) { state.search.tagName = newTagName }
 }
 
 export const actions = {
