@@ -42,6 +42,23 @@ describe('tasks store', () => {
       })
     })
 
+    describe('started', () => {
+      let startedTasks
+      let unstartedTasks
+
+      beforeEach(() => {
+        startedTasks = buildTasks(4, { started: true })
+        unstartedTasks = buildTasks(5, { started: false })
+        store = buildStore([...startedTasks, ...unstartedTasks])
+      })
+
+      it('should return only the started tasks', () => {
+        const subject = store.getters['tasks/started']
+
+        expect(subject).toContainExactly(startedTasks)
+      })
+    })
+
     describe('find', () => {
       let task
       let tasks

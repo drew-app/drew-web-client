@@ -48,6 +48,10 @@ export const getters = {
     return Object.values(state.all)
   },
 
+  started: (state, getters) => {
+    return getters.all.filter(task => task.started)
+  },
+
   search: (state, getters) => {
     return state.search.filterAll(getters.all)
   },
