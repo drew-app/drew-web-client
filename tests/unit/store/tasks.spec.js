@@ -45,14 +45,16 @@ describe('tasks store', () => {
     describe('started', () => {
       let startedTasks
       let unstartedTasks
+      let doneTasks
 
       beforeEach(() => {
         startedTasks = buildTasks(4, { started: true })
         unstartedTasks = buildTasks(5, { started: false })
-        store = buildStore([...startedTasks, ...unstartedTasks])
+        doneTasks = buildTasks(6, { done: true, started: true })
+        store = buildStore([...startedTasks, ...unstartedTasks, ...doneTasks])
       })
 
-      it('should return only the started tasks', () => {
+      it('should return only the started undone tasks', () => {
         const subject = store.getters['tasks/started']
 
         expect(subject).toContainExactly(startedTasks)

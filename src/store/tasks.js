@@ -49,7 +49,7 @@ export const getters = {
   },
 
   started: (state, getters) => {
-    return getters.all.filter(task => task.started)
+    return getters.all.filter(task => task.started && !task.done)
   },
 
   search: (state, getters) => {
