@@ -17,6 +17,10 @@
           <label>Title</label>
           <input name="title" v-model="formData.title" v-focus>
         </div>
+        <div class="field">
+          <label>Description</label>
+          <textarea name="description" v-model="formData.description"></textarea>
+        </div>
         <div class="actions">
           <button>Save</button>
         </div>
@@ -29,7 +33,9 @@
         </div>
         <div class="description">
           <label>Description</label>
-          <span v-if="task.description">{{task.description}}</span>
+          <div v-if="task.description">
+            <vue-markdown :source="task.description"></vue-markdown>
+          </div>
           <span v-else class="empty">No description</span>
         </div>
         <div class="data">
@@ -42,10 +48,15 @@
 </template>
 
 <script>
+import VueMarkdown from 'vue-markdown'
+
 export default {
   name: 'Task',
   props: {
     id: Number
+  },
+  components: {
+    VueMarkdown
   },
   data () {
     return {
@@ -68,11 +79,12 @@ export default {
     startEdit () {
       this.editing = true
       this.formData = {
-        title: this.task.title
+        title: this.task.title,
+        description: this.task.description
       }
     },
     updateTask () {
-      this.$store.dispatch('tasks/updateTask', {id: this.task.id, updatedAttributes: this.formData})
+      this.$store.dispatch('tasks/updateTask', { id: this.task.id, updatedAttributes: this.formData })
       this.editing = false
     }
   }
@@ -117,9 +129,12 @@ export default {
 
     #task__edit-form
       .field
-        label, input
+        label, input, textarea
           display: block;
           width: 100%;
+
+        textarea
+          height: 5rem
 
       .actions
         margin-top: long-space;

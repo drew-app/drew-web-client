@@ -16,7 +16,11 @@ describe('Task.vue', () => {
   let wrapper
 
   const id = 1234
-  const task = buildTask({ id: id, title: 'The title' })
+  const task = buildTask({
+    id: id,
+    title: 'The title',
+    description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, \n ' +
+      'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' })
 
   beforeEach(() => {
     localVue.filter('date-format', (date) => date)
@@ -36,7 +40,8 @@ describe('Task.vue', () => {
       localVue,
       propsData: { id },
       stubs: {
-        'd-icon': true
+        'd-icon': true,
+        'VueMarkdown': true
       }
     })
   })
@@ -73,10 +78,12 @@ describe('Task.vue', () => {
     describe('edit mode open', () => {
       let editForm
       let titleField
+      let descriptionField
 
       beforeEach(() => {
         wrapper.find('#task__edit').trigger('click')
         titleField = wrapper.find("#task__edit-form input[name='title']")
+        descriptionField = wrapper.find("#task__edit-form textarea[name='description']")
         editForm = wrapper.find('form#task__edit-form')
       })
 
@@ -91,6 +98,7 @@ describe('Task.vue', () => {
 
       it('should load the data from the model into the form', () => {
         expect(titleField.element.value).toEqual(task.title)
+        expect(descriptionField.element.value).toEqual(task.description)
       })
 
       it('should not change the base object when updating the title without a mutation', () => {
@@ -104,7 +112,14 @@ describe('Task.vue', () => {
         editForm.trigger('submit')
 
         expect(updateTaskMock).toHaveBeenCalled()
-        expect(updateTaskMock.mock.calls[0][1]).toEqual({ id: 1234, updatedAttributes: { title: 'The new title' } })
+        expect(updateTaskMock.mock.calls[0][1]).toEqual({
+          id: 1234,
+          updatedAttributes: {
+            title: 'The new title',
+            description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, \n ' +
+              'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+          }
+        })
       })
 
       it('should close the form upon submit', () => {

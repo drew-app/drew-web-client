@@ -7,6 +7,7 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "deploy": "vue-cli-service s3-deploy",
+    "ci:unit": "vue-cli-service test:unit",
     "test:unit": "vue-cli-service test:unit || true"
   },
   "dependencies": {
@@ -16,6 +17,7 @@
     "normalize.css": "^8.0.0",
     "vue": "^2.5.16",
     "vue-cli-plugin-s3-deploy": "^2.0.2",
+    "vue-markdown": "^2.2.4",
     "vue-router": "^3.0.1",
     "vuex": "^3.0.1"
   },
