@@ -9,7 +9,7 @@
       </div>
     </header>
     <div id="task__main">
-      <div v-if="!task" id="task__loading-indicator">
+      <div v-if="!loaded" id="task__loading-indicator">
         Loading...
       </div>
       <form v-else-if="editing" id="task__edit-form" @submit.prevent="updateTask">
@@ -21,12 +21,38 @@
           <label>Description</label>
           <textarea name="description" v-model="formData.description"></textarea>
         </div>
+        <div class="field">
+          <label>Tags</label>
+          <vue-multiselect
+            name="tags"
+            v-model="formData.tags"
+            track-by="name"
+            label="name"
+            :options="tags"
+            :multiple="true"
+            :close-on-select="false"
+            :taggable="true"
+            @tag="addTag"
+            @open="multiSelectOpen = true"
+            @close="multiSelectOpen = false"
+          ></vue-multiselect>
+        </div>
         <div class="actions">
           <button>Save</button>
         </div>
       </form>
       <div v-else id="task__details">
         <h2>{{task.title}}</h2>
+        <div class="tags">
+          <div class="tags">
+            <span class="tag"
+                  v-for="tag in task.tags"
+                  :data-tag-name="tag.name"
+                  :key="tag.name">
+              {{ tag.name }}
+            </span>
+          </div>
+        </div>
         <div class="created-at">
           <label>Created At</label>
           <span>{{ task.created_at | date-format }}</span>
@@ -49,6 +75,10 @@
 
 <script>
 import VueMarkdown from 'vue-markdown'
+import VueMultiselect from 'vue-multiselect'
+import { newTag } from '@/store/tags'
+import { omit } from 'lodash'
+import TaskList from '../components/TaskList'
 
 export default {
   name: 'Task',
@@ -56,19 +86,25 @@ export default {
     id: Number
   },
   components: {
+    TaskList,
+    VueMultiselect,
     VueMarkdown
   },
   data () {
     return {
       editing: false,
-      formData: {}
+      formData: {},
+      multiSelectOpen: false
     }
   },
   computed: {
-    task () { return this.$store.getters['tasks/find'](this.id) }
+    task () { return this.$store.getters['tasks/find'](this.id) },
+    tags () { return [...this.$store.getters['tags/all']] },
+    loaded () { return !!this.task && !!this.tags }
   },
   created () {
     this.$store.dispatch('tasks/loadTask', this.id)
+    this.$store.dispatch('tags/loadAll')
   },
   directives: {
     focus: {
@@ -80,12 +116,20 @@ export default {
       this.editing = true
       this.formData = {
         title: this.task.title,
-        description: this.task.description
+        description: this.task.description,
+        tags: this.task.tags
       }
     },
     updateTask () {
-      this.$store.dispatch('tasks/updateTask', { id: this.task.id, updatedAttributes: this.formData })
+      const tags = this.formData['tags']
+      const updatedAttributes = omit(this.formData, 'tags')
+      this.$store.dispatch('tasks/updateTask', { id: this.task.id, updatedAttributes, tags })
       this.editing = false
+    },
+    addTag (tagName) {
+      const newTagObj = newTag({ name: tagName })
+      this.formData.tags.push(newTagObj)
+      this.tags.push(newTagObj)
     }
   }
 }
@@ -127,6 +171,18 @@ export default {
     .description span, .data span
       display: block
 
+    .tags
+      margin-bottom: long-space
+
+    .tag
+      display: inline
+      background-color: #ddd
+      color: #222
+      padding: 0.25rem 0.5rem
+      font-size: 0.8rem
+      border-radius: 0.75rem
+      margin-right: short-space
+
     #task__edit-form
       .field
         label, input, textarea
@@ -140,4 +196,7 @@ export default {
         margin-top: long-space;
         button
           contained-button()
+
+      .multiselect:focus-within
+        elevation(3)
 </style>

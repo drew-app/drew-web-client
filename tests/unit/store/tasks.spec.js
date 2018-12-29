@@ -373,7 +373,7 @@ describe('tasks store', () => {
       it('should commit the addTask mutation with the new task with tags', (done) => {
         const taskTitle = 'Do something!'
         const tags = ['tagName1', 'tagName2']
-        const apiResponse = buildTask({ title: taskTitle, tags: [{name: 'tagName1'}, {name: 'tagName2'}] })
+        const apiResponse = buildTask({ title: taskTitle, tags: [{ name: 'tagName1' }, { name: 'tagName2' }] })
 
         const $axios = {
           post: jest.fn((resource, params) => {
@@ -403,7 +403,7 @@ describe('tasks store', () => {
         const $axios = {
           put: jest.fn((resource, params) => {
             expect(resource).toEqual('tasks/1')
-            expect(params).toEqual({ task: { done: true } })
+            expect(params).toEqual({ tags: [], task: { done: true } })
 
             return new Promise((resolve, reject) => {
               resolve({ data: apiResponse })

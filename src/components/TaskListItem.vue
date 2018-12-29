@@ -1,5 +1,8 @@
 <template>
   <li class="task-list-item" v-bind:class="{ done: task.done, started: task.started, tagged: !!task.tags }" @click='openDetails'>
+    <div class="title">
+      {{task.title}}
+    </div>
     <div class="tags">
       <span class="tag"
             v-for="tag in task.tags"
@@ -8,9 +11,6 @@
             @click.stop="filterTag(tag)">
         {{ tag.name }}
       </span>
-    </div>
-    <div class="title">
-      {{task.title}}
     </div>
     <div v-if="!task.done" class="actions">
       <button class="mark-done" @click.stop='markDone'>Done</button>
@@ -39,7 +39,7 @@ export default {
     markDone  () { this._updateTask({ done: true }) },
     start  () { this._updateTask({ started: true }) },
     stop  () { this._updateTask({ started: false }) },
-    openDetails  () { this.$router.push({path: `/tasks/${this.task.id}`}) },
+    openDetails  () { this.$router.push({ path: `/tasks/${this.task.id}` }) },
     filterTag (tag) { this.$store.commit('tasks/filterTagName', tag.name) }
   }
 }
@@ -71,7 +71,10 @@ export default {
 
     .title {
       font-size: 1.2rem;
-      flex: 1 1 32rem;
+      flex: 1 1 100%;
+    }
+    .tags {
+      align-self: flex-end;
     }
     .actions {
       text-align: right;
