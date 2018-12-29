@@ -15,11 +15,11 @@ export class TaskSearch {
   filterStarted (task) { return task.started === this.started }
   filterTagName (task) {
     return task.tags.some((tag) => {
-      return tag.name.localeCompare(this.tagName, 'en', {sensitivity: 'base'}) === 0
+      return tag.name.localeCompare(this.tagName, 'en', { sensitivity: 'base' }) === 0
     })
   }
 
-  constructor ({includeDone = null, started = null, tagName = null} = {}) {
+  constructor ({ includeDone = null, started = null, tagName = null } = {}) {
     this.includeDone = includeDone
     this.started = started
     this.tagName = tagName
@@ -107,9 +107,11 @@ export const actions = {
     })
   },
 
-  updateTask ({ commit }, { id, updatedAttributes }) {
+  updateTask ({ commit }, { id, updatedAttributes, tags = [] }) {
+    const tagNames = tags.map((tag) => tag.name)
     this.$axios.put(`tasks/${id}`, {
-      task: updatedAttributes
+      task: updatedAttributes,
+      tags: tagNames
     }).then(({ data }) => {
       commit('updateTask', data)
     })

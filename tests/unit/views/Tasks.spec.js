@@ -32,7 +32,7 @@ describe('Tasks.vue', () => {
     storeOverrides = {},
     route = { matched: [{ path: '/' }, { path: '/tasks' }] }
   ) => {
-    store = new Vuex.Store({ modules: { tasks: {...stubs, ...storeOverrides, namespaced: true} } })
+    store = new Vuex.Store({ modules: { tasks: { ...stubs, ...storeOverrides, namespaced: true } } })
 
     wrapper = shallowMount(Tasks, {
       store,
@@ -72,7 +72,7 @@ describe('Tasks.vue', () => {
 
   describe('showDone', () => {
     it('should mirror the filter state', () => {
-      mountWrapper({state: { search: { includeDone: true } }})
+      mountWrapper({ state: { search: { includeDone: true } } })
 
       expect(wrapper.find('#tasks__show-done').element.checked).toBe(true)
     })
@@ -87,7 +87,7 @@ describe('Tasks.vue', () => {
 
   describe('focusStarted', () => {
     it('should mirror the filter state', () => {
-      mountWrapper({state: { search: { started: true } }})
+      mountWrapper({ state: { search: { started: true } } })
 
       expect(wrapper.find('#tasks__focus-started').element.checked).toBe(true)
     })
@@ -100,7 +100,7 @@ describe('Tasks.vue', () => {
     })
 
     it('should comit the disableFilterStarted mutation when disabled', () => {
-      mountWrapper({state: { search: { started: true } }})
+      mountWrapper({ state: { search: { started: true } } })
       wrapper.find('#tasks__focus-started').trigger('click')
 
       expect(stubs.mutations.disableFilterStarted).toHaveBeenCalled()
@@ -109,7 +109,7 @@ describe('Tasks.vue', () => {
 
   describe('tagFilter', () => {
     it('should show the clear tag filter button if filter is applied', () => {
-      mountWrapper({state: { search: { tagName: 'home' } }})
+      mountWrapper({ state: { search: { tagName: 'home' } } })
 
       expect(wrapper.find('.clear-tag-filter').exists()).toBe(true)
     })
@@ -121,7 +121,7 @@ describe('Tasks.vue', () => {
     })
 
     it('should commit the filterTagName mutation', () => {
-      mountWrapper({state: { search: { tagName: 'home' } }})
+      mountWrapper({ state: { search: { tagName: 'home' } } })
 
       wrapper.find('.clear-tag-filter').trigger('click')
 
@@ -137,7 +137,7 @@ describe('Tasks.vue', () => {
     })
 
     it('should show the details with a sub route', () => {
-      route = {matched: [{path: '/'}, {path: '/tasks'}, {path: '/tasks/:id'}]}
+      route = { matched: [{ path: '/' }, { path: '/tasks' }, { path: '/tasks/:id' }] }
       mountWrapper({}, route)
 
       expect(wrapper.find('#tasks__details').exists()).toBe(true)

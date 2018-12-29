@@ -5,6 +5,8 @@ import { buildTask } from '../../factories/task-factory'
 
 import Icons from '@/plugins/icons-plugin.js'
 import tasks from '@/store/tasks.js'
+import tags from '@/store/tags.js'
+import { buildTags } from '../../factories/tag-factory'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
@@ -12,6 +14,7 @@ localVue.use(Icons)
 
 describe('Task.vue', () => {
   let loadTaskMock
+  let loadTagsMock
   let updateTaskMock
   let wrapper
 
@@ -20,20 +23,28 @@ describe('Task.vue', () => {
     id: id,
     title: 'The title',
     description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, \n ' +
-      'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.' })
+      'sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.',
+    tags: buildTags(3)
+  })
 
   beforeEach(() => {
     localVue.filter('date-format', (date) => date)
 
     loadTaskMock = jest.fn()
     updateTaskMock = jest.fn()
+    loadTagsMock = jest.fn()
+
     tasks.actions = {
       loadTask: loadTaskMock,
       updateTask: updateTaskMock
     }
     tasks.state = { all: { [id]: task } }
 
-    const store = new Vuex.Store({ modules: { tasks } })
+    tags.actions = {
+      loadAll: loadTagsMock
+    }
+
+    const store = new Vuex.Store({ modules: { tasks, tags } })
 
     wrapper = mount(Task, {
       store,
@@ -50,6 +61,10 @@ describe('Task.vue', () => {
     it('should trigger the tasks/loadTask action', () => {
       expect(loadTaskMock).toHaveBeenCalled()
       expect(loadTaskMock.mock.calls[0][1]).toEqual(id)
+    })
+
+    it('should trigger the tags/loadAll action', () => {
+      expect(loadTagsMock).toHaveBeenCalled()
     })
   })
 
@@ -114,6 +129,7 @@ describe('Task.vue', () => {
         expect(updateTaskMock).toHaveBeenCalled()
         expect(updateTaskMock.mock.calls[0][1]).toEqual({
           id: 1234,
+          tags: task.tags,
           updatedAttributes: {
             title: 'The new title',
             description: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, \n ' +
