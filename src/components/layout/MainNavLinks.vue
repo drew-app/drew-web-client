@@ -12,6 +12,12 @@
         Tasks
       </a>
     </li>
+    <li>
+      <a href="/trackers" @click.prevent="nav">
+        <d-icon icon="moon"></d-icon>
+        Trackers
+      </a>
+    </li>
   </ul>
 </template>
 

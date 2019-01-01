@@ -1,5 +1,8 @@
 <template>
-  <li class="task-list-item" v-bind:class="{ done: task.done, started: task.started, tagged: !!task.tags }" @click='openDetails'>
+  <li class="task-list-item"
+      v-bind:class="{ done: task.done, started: task.started, tagged: !!task.tags }"
+      @click='openDetails'
+  >
     <div class="title">
       {{task.title}}
     </div>
@@ -30,16 +33,16 @@ export default {
     }
   },
   methods: {
-    _updateTask  (updateAttrs) {
+    _updateTask (updateAttrs) {
       this.$store.dispatch('tasks/updateTask', {
         id: this.task.id,
         updatedAttributes: updateAttrs
       })
     },
-    markDone  () { this._updateTask({ done: true }) },
-    start  () { this._updateTask({ started: true }) },
-    stop  () { this._updateTask({ started: false }) },
-    openDetails  () { this.$router.push({ path: `/tasks/${this.task.id}` }) },
+    markDone () { this._updateTask({ done: true }) },
+    start () { this._updateTask({ started: true }) },
+    stop () { this._updateTask({ started: false }) },
+    openDetails () { this.$router.push({ path: `/tasks/${this.task.id}` }) },
     filterTag (tag) { this.$store.commit('tasks/filterTagName', tag.name) }
   }
 }
@@ -87,7 +90,9 @@ export default {
     button.stop,
     button.mark-done
       margin-left: 0.25rem;
-      &:first-child { margin-left: 0 }
+      &:first-child {
+        margin-left: 0
+      }
 
     button.start,
     button.stop
@@ -97,7 +102,9 @@ export default {
     button.mark-done
       contained-button()
 
-    &.done { text-decoration: line-through; }
+    &.done {
+      text-decoration: line-through;
+    }
     &.started {
       background-color: rgba(orange, 0.2);
     }

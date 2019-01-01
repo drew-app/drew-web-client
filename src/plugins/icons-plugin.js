@@ -1,8 +1,8 @@
 import { library } from '@fortawesome/fontawesome-svg-core'
-import { faEdit, faBars, faTasks, faSignOut, faTachometerAlt } from '@fortawesome/pro-light-svg-icons'
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome'
+import { faEdit, faBars, faTasks, faSignOut, faTachometerAlt, faMoon } from '@fortawesome/pro-light-svg-icons'
 
-library.add(faEdit, faBars, faTasks, faSignOut, faTachometerAlt)
+library.add(faEdit, faBars, faTasks, faSignOut, faTachometerAlt, faMoon)
 
 export default {
   install: function (Vue, options) {

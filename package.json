@@ -7,8 +7,8 @@
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
     "deploy": "vue-cli-service s3-deploy",
-    "ci:unit": "vue-cli-service test:unit",
-    "test:unit": "vue-cli-service test:unit || true"
+    "ci:unit": "jest --clearCache && vue-cli-service test:unit",
+    "test:unit": "jest --clearCache && vue-cli-service test:unit"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.4",
