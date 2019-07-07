@@ -87,8 +87,10 @@ export const mutations = {
 
 export const actions = {
   loadAll ({ commit }) {
-    this.$axios.get('tasks').then(({ data }) => {
-      commit('loadAll', data)
+    this.$axios.post('graphql', {
+      query: '{ tasks { id, title, description, started, done, tags { name } } }'
+    }).then(({ data }) => {
+      commit('loadAll', data.data.tasks)
     })
   },
 
