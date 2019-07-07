@@ -71,10 +71,11 @@ export const mutations = {
   },
 
   updateTask (state, taskAttributes) {
-    merge(
-      state.all[taskAttributes.id],
-      taskAttributes
-    )
+    let updated = {
+      ...state.all[taskAttributes.id],
+      ...taskAttributes
+    }
+    Vue.set(state.all, taskAttributes.id, updated)
   },
 
   filterDone (state) { state.search.includeDone = !state.search.includeDone },
