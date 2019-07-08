@@ -138,6 +138,23 @@ describe('trackers store', () => {
         expect(subject.tracker_records).toContain(addedTrackerRecord)
       })
     })
+
+    describe('destroyTracker', () => {
+      let doomedTracker
+
+      beforeEach(() => {
+        doomedTracker = buildTracker({ id: 5 })
+      })
+
+      it('with default state', () => {
+        store = buildStore([doomedTracker])
+        store.commit('trackers/destroyTracker', '5')
+
+        const subject = store.getters['trackers/find'](5)
+
+        expect(subject).toBeFalsy()
+      })
+    })
   })
 
   describe('actions', () => {
@@ -209,6 +226,29 @@ describe('trackers store', () => {
         store.$axios = $axios
 
         store.dispatch('trackers/addTracker', { title: trackerTitle })
+      })
+    })
+
+    describe('destroyTracker', () => {
+      it('should commit the destroy mutation with the tracker id', (done) => {
+        const tracker = buildTracker({ id: 5 })
+        const $axios = {
+          delete: jest.fn((resource) => {
+            expect(resource).toEqual('trackers/5')
+
+            return new Promise((resolve, reject) => resolve({ }))
+          })
+        }
+
+        trackers.mutations.destroyTracker = jest.fn((_, id) => {
+          expect(id).toEqual(5)
+          done()
+        })
+
+        store = buildStore([tracker])
+        store.$axios = $axios
+
+        store.dispatch('trackers/destroyTracker', 5)
       })
     })
 

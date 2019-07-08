@@ -38,5 +38,9 @@ export default {
 
 <style lang='stylus' scoped>
   @require '~@/assets/stylesheets/includes'
+  @require '~@/assets/stylesheets/modules/form'
+
+  form
+    base-form()
 
 </style>

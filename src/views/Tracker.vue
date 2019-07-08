@@ -10,6 +10,7 @@
       </div>
       <div id="tracker__actions">
         <button id="tracker__actions-add-record" @click="addRecord">Add Record</button>
+        <button id="tracker__delete" @click="deleteTracker">Delete</button>
       </div>
       <ul>
         <li v-for="trackerRecord in tracker.tracker_records"
@@ -20,6 +21,16 @@
         </li>
       </ul>
     </div>
+    <div v-if="showDeleteConfirmation" id="tracker_delete" class="underlay">
+      <div id="tracker_delete__modal">
+        Delete tracker with existing records?
+
+        <div id="tracker_delete__actions">
+          <button id="tracker_delete__cancel" @click="hideDeleteConfirmation">Cancel</button>
+          <button id="tracker_delete__confirm" @click="reallyDeleteTracker">Delete</button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -29,6 +40,11 @@ export default {
   props: {
     id: Number
   },
+  data () {
+    return {
+      showDeleteConfirmation: false
+    }
+  },
   computed: {
     tracker () { return this.$store.getters['trackers/find'](this.id) },
     loading () { return !this.tracker }
@@ -37,7 +53,21 @@ export default {
     this.$store.dispatch('trackers/loadTracker', this.id)
   },
   methods: {
-    addRecord () { this.$store.dispatch('trackers/addTrackerRecord', this.id) }
+    addRecord () { this.$store.dispatch('trackers/addTrackerRecord', this.id) },
+    deleteTracker () {
+      if (this.tracker.tracker_records.length <= 0) {
+        this.reallyDeleteTracker()
+      } else {
+        this.showDeleteConfirmation = true
+      }
+    },
+    reallyDeleteTracker () {
+      this.$store.dispatch('trackers/destroyTracker', this.id).then(() => { this.$router.push({ path: '/trackers' }) })
+      this.showDeleteConfirmation = false
+    },
+    hideDeleteConfirmation () {
+      this.showDeleteConfirmation = false
+    }
   }
 }
 </script>
@@ -46,8 +76,48 @@ export default {
   @require '~@/assets/stylesheets/includes'
   @require '~@/assets/stylesheets/modules/button'
 
-  button#tracker__actions-add-record
+  button
     contained-button()
+
+  #tracker__actions
+    display: grid
+    grid-auto-columns: max-content
+    grid-gap: medium-space
+
+    &>* { grid-row: 1 }
+
+  .underlay
+    height: 100vh
+    width: 100vw
+    top: 0
+    left: 0
+    elevation 8
+
+    position: fixed
+    background-color: rgba(1, 1, 1, 0.8)
+
+    display flex
+    align-items center
+    justify-content center
+
+  #tracker_delete__modal
+    padding: 2rem
+    background-color: white;
+    height max-content
+    width max-content
+
+    #tracker_delete__actions
+      display: grid
+      grid-auto-columns: max-content
+      grid-gap: medium-space
+      justify-content end
+
+      &>* { grid-row: 1 }
+
+      margin-top long-space
+
+      button#tracker_delete__confirm
+        flat-button()
 
   ul
     list-style: none

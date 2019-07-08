@@ -28,6 +28,10 @@ export const mutations = {
 
   addTrackerRecord (state, addedTrackerRecord) {
     state.all[addedTrackerRecord.tracker_id].tracker_records.push(addedTrackerRecord)
+  },
+
+  destroyTracker (state, id) {
+    Vue.delete(state.all, id)
   }
 }
 
@@ -50,6 +54,11 @@ export const actions = {
   addTrackerRecord ({ commit }, id) {
     this.$axios.post(`trackers/${id}/tracker_records`).then(({ data }) => {
       commit('addTrackerRecord', data)
+    })
+  },
+  destroyTracker ({ commit }, id) {
+    this.$axios.delete(`trackers/${id}`).then(() => {
+      commit('destroyTracker', id)
     })
   }
 }
