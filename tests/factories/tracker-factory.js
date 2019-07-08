@@ -7,7 +7,8 @@ export function buildTracker (overrideAttrs = {}) {
   let returnVal = merge(
     newTracker({
       id: trackerFactoryIdSequenceNum,
-      title: `Tracker number ${trackerFactoryIdSequenceNum}`
+      title: `Tracker number ${trackerFactoryIdSequenceNum}`,
+      tracker_records: []
     }),
     overrideAttrs
   )

@@ -138,7 +138,7 @@ export default {
 <style lang="stylus" scoped>
   @require '~@/assets/stylesheets/includes'
   @require '~@/assets/stylesheets/modules/app-bar'
-  @require '~@/assets/stylesheets/modules/button'
+  @require '~@/assets/stylesheets/modules/form'
 
   #task
     min-height: 100vh;
@@ -184,18 +184,7 @@ export default {
       margin-right: short-space
 
     #task__edit-form
-      .field
-        label, input, textarea
-          display: block;
-          width: 100%;
-
-        textarea
-          height: 5rem
-
-      .actions
-        margin-top: long-space;
-        button
-          contained-button()
+      base-form()
 
       .multiselect:focus-within
         elevation(3)
