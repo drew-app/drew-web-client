@@ -14,14 +14,14 @@ describe('Dashboard.vue', () => {
       loadAll: jest.fn()
     },
     getters: {
-      started: () => 'Tasks!'
+      focused: () => 'Tasks!'
     }
   }
 
   const mountWrapper = (
     storeOverrides = {}
   ) => {
-    store = new Vuex.Store({ modules: { tasks: {...stubs, ...storeOverrides, namespaced: true} } })
+    store = new Vuex.Store({ modules: { tasks: { ...stubs, ...storeOverrides, namespaced: true } } })
 
     wrapper = shallowMount(Dashboard, {
       store,
@@ -45,7 +45,7 @@ describe('Dashboard.vue', () => {
   })
 
   describe('tasks', () => {
-    it('should render a task-list with the started tasks', () => {
+    it('should render a task-list with the focused tasks', () => {
       mountWrapper()
 
       const emptyMessage = wrapper.find('.empty')
@@ -56,7 +56,7 @@ describe('Dashboard.vue', () => {
     })
 
     it('should render an empty message if there are no tasks', () => {
-      mountWrapper({ getters: { started: () => [] } })
+      mountWrapper({ getters: { focused: () => [] } })
 
       const emptyMessage = wrapper.find('.empty')
       const taskList = wrapper.find('.task-list-stub')

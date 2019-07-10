@@ -1,6 +1,6 @@
 <template>
   <li class="task-list-item"
-      v-bind:class="{ done: task.done, started: task.started, tagged: !!task.tags }"
+      v-bind:class="{ done: task.done, focused: task.focused, tagged: !!task.tags }"
       @click='openDetails'
   >
     <div class="title">
@@ -16,9 +16,9 @@
       </span>
     </div>
     <div v-if="!task.done" class="actions">
-      <button class="mark-done" @click.stop='markDone'>Done</button>
-      <button v-if="!task.started" class="start" @click.stop='start'>Start</button>
-      <button v-else class="stop" @click.stop='stop'>Stop</button>
+      <button class="mark-done" @click.stop='markDone'><d-icon icon="check" icon-style='fas' size="lg"></d-icon></button>
+      <button v-if="!task.focused" class="focus" @click.stop='markFocused'><d-icon icon="star" size="lg"></d-icon></button>
+      <button v-else class='unfocus' @click.stop='markUnfocused'><d-icon icon='star' icon-style='fas' size="lg"></d-icon></button>
     </div>
   </li>
 </template>
@@ -40,8 +40,8 @@ export default {
       })
     },
     markDone () { this._updateTask({ done: true }) },
-    start () { this._updateTask({ started: true }) },
-    stop () { this._updateTask({ started: false }) },
+    markFocused () { this._updateTask({ focused: true }) },
+    markUnfocused () { this._updateTask({ focused: false }) },
     openDetails () { this.$router.push({ path: `/tasks/${this.task.id}` }) },
     filterTag (tag) { this.$store.commit('tasks/filterTagName', tag.name) }
   }
@@ -86,26 +86,25 @@ export default {
       margin-top: short-space;
     }
 
-    button.start,
-    button.stop,
+    button.focus,
+    button.unfocus,
     button.mark-done
       margin-left: 0.25rem;
       &:first-child {
         margin-left: 0
       }
 
-    button.start,
-    button.stop
-      outlined-button()
-      width: 5.25rem;
+    button.focus,
+    button.unfocus
+      flat-icon-button()
 
     button.mark-done
-      contained-button()
+      contained-icon-button()
 
     &.done {
       text-decoration: line-through;
     }
-    &.started {
+    &.focused {
       background-color: rgba(orange, 0.2);
     }
 

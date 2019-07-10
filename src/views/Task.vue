@@ -3,7 +3,7 @@
     <header>
       <a id="task__back" @click.once="$router.go(-1)">◀</a>
       <div class="actions">
-        <a id="task__edit" @click="startEdit">
+        <a id="task__edit" @click="focusEdit">
           <d-icon icon="edit"></d-icon>
         </a>
       </div>
@@ -112,7 +112,7 @@ export default {
     }
   },
   methods: {
-    startEdit () {
+    focusEdit () {
       this.editing = true
       this.formData = {
         title: this.task.title,

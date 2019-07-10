@@ -14,7 +14,7 @@ export default {
   name: 'dashboard',
   components: { TaskList },
   computed: {
-    tasks () { return this.$store.getters['tasks/started'] }
+    tasks () { return this.$store.getters['tasks/focused'] }
   },
   created () {
     this.$store.dispatch('tasks/loadAll')

@@ -42,22 +42,22 @@ describe('tasks store', () => {
       })
     })
 
-    describe('started', () => {
-      let startedTasks
-      let unstartedTasks
+    describe('focused', () => {
+      let focusedTasks
+      let unfocusedTasks
       let doneTasks
 
       beforeEach(() => {
-        startedTasks = buildTasks(4, { started: true })
-        unstartedTasks = buildTasks(5, { started: false })
-        doneTasks = buildTasks(6, { done: true, started: true })
-        store = buildStore([...startedTasks, ...unstartedTasks, ...doneTasks])
+        focusedTasks = buildTasks(4, { focused: true })
+        unfocusedTasks = buildTasks(5, { focused: false })
+        doneTasks = buildTasks(6, { done: true, focused: true })
+        store = buildStore([...focusedTasks, ...unfocusedTasks, ...doneTasks])
       })
 
-      it('should return only the started undone tasks', () => {
-        const subject = store.getters['tasks/started']
+      it('should return only the focused undone tasks', () => {
+        const subject = store.getters['tasks/focused']
 
-        expect(subject).toContainExactly(startedTasks)
+        expect(subject).toContainExactly(focusedTasks)
       })
     })
 
@@ -83,23 +83,23 @@ describe('tasks store', () => {
     })
 
     describe('search', () => {
-      const taggedTasks = buildTasks(2, { done: false, started: false, tags: [{ id: 1, name: 'home' }] })
-      const untaggedTasks = buildTasks(3, { done: false, started: false, tags: [] })
+      const taggedTasks = buildTasks(2, { done: false, focused: false, tags: [{ id: 1, name: 'home' }] })
+      const untaggedTasks = buildTasks(3, { done: false, focused: false, tags: [] })
       const undoneTasks = [...taggedTasks, ...untaggedTasks]
-      const startedTasks = buildTasks(4, { done: false, started: true })
-      const doneUnstartedTasks = buildTasks(5, { done: true, started: false })
-      const doneStartedTasks = buildTasks(6, { done: true, started: true })
-      const allTasks = [...undoneTasks, ...startedTasks, ...doneUnstartedTasks, ...doneStartedTasks]
+      const focusedTasks = buildTasks(4, { done: false, focused: true })
+      const doneUnfocusedTasks = buildTasks(5, { done: true, focused: false })
+      const doneFocusedTasks = buildTasks(6, { done: true, focused: true })
+      const allTasks = [...undoneTasks, ...focusedTasks, ...doneUnfocusedTasks, ...doneFocusedTasks]
 
       function search (params) {
         store = buildStore(allTasks, params)
         return store.getters['tasks/search']
       }
 
-      it('should return the undone and started tasks by default', () => {
+      it('should return the undone and focused tasks by default', () => {
         const subject = search()
 
-        expect(subject).toContainExactly([...undoneTasks, ...startedTasks])
+        expect(subject).toEqual([...focusedTasks, ...undoneTasks])
       })
 
       it('should return all the tasks if the includeDone flag is set true', () => {
@@ -108,22 +108,22 @@ describe('tasks store', () => {
         expect(subject).toContainExactly(allTasks)
       })
 
-      it('should return undone and started tasks if the started field is set true', () => {
-        const subject = search({ started: true })
+      it('should return undone and focused tasks if the focused field is set true', () => {
+        const subject = search({ focused: true })
 
-        expect(subject).toContainExactly(startedTasks)
+        expect(subject).toContainExactly(focusedTasks)
       })
 
-      it('should return undone and unstarted if the started field is set false', () => {
-        const subject = search({ started: false })
+      it('should return undone and unfocused if the focused field is set false', () => {
+        const subject = search({ focused: false })
 
         expect(subject).toContainExactly(undoneTasks)
       })
 
-      it('should return all started tasks if the started field is set true and the includeDone flag is set true', () => {
-        const subject = search({ started: true, includeDone: true })
+      it('should return all focused tasks if the focused field is set true and the includeDone flag is set true', () => {
+        const subject = search({ focused: true, includeDone: true })
 
-        expect(subject).toContainExactly([...startedTasks, ...doneStartedTasks])
+        expect(subject).toContainExactly([...focusedTasks, ...doneFocusedTasks])
       })
 
       it('should return all tasks with the correct tag by name', () => {
@@ -227,12 +227,12 @@ describe('tasks store', () => {
         expect(updatedTask.title).toEqual('Bar task')
       })
 
-      it('should change the started flag', () => {
-        store.commit('tasks/updateTask', { id: 1, started: true })
+      it('should change the focused flag', () => {
+        store.commit('tasks/updateTask', { id: 1, focused: true })
 
         let updatedTask = store.state.tasks.all[1]
 
-        expect(updatedTask.started).toEqual(true)
+        expect(updatedTask.focused).toEqual(true)
       })
     })
 
@@ -252,19 +252,19 @@ describe('tasks store', () => {
       })
     })
 
-    describe('filterStarted', () => {
-      it('should turn the started flag on if off', () => {
-        store = buildStore([], { started: false })
-        store.commit('tasks/filterStarted')
+    describe('filterFocused', () => {
+      it('should turn the focused flag on if off', () => {
+        store = buildStore([], { focused: false })
+        store.commit('tasks/filterFocused')
 
-        expect(store.state.tasks.search.started).toEqual(true)
+        expect(store.state.tasks.search.focused).toEqual(true)
       })
 
-      it('should turn the started flag off if on', () => {
-        store = buildStore([], { started: true })
-        store.commit('tasks/filterStarted')
+      it('should turn the focused flag off if on', () => {
+        store = buildStore([], { focused: true })
+        store.commit('tasks/filterFocused')
 
-        expect(store.state.tasks.search.started).toEqual(false)
+        expect(store.state.tasks.search.focused).toEqual(false)
       })
     })
 
@@ -284,17 +284,17 @@ describe('tasks store', () => {
       })
     })
 
-    describe('disableFilterStarted', () => {
-      it('should disable the started filter', () => {
-        store = buildStore([], { started: true })
-        store.commit('tasks/disableFilterStarted')
+    describe('disableFilterFocused', () => {
+      it('should disable the focused filter', () => {
+        store = buildStore([], { focused: true })
+        store.commit('tasks/disableFilterFocused')
 
-        expect(store.state.tasks.search.started).toBe(null)
+        expect(store.state.tasks.search.focused).toBe(null)
 
-        store = buildStore({ started: false })
-        store.commit('tasks/disableFilterStarted')
+        store = buildStore({ focused: false })
+        store.commit('tasks/disableFilterFocused')
 
-        expect(store.state.tasks.search.started).toEqual(null)
+        expect(store.state.tasks.search.focused).toEqual(null)
       })
     })
   })

@@ -42,6 +42,9 @@ describe('TaskListItem.vue', () => {
       mocks: {
         $router: router
       },
+      stubs: {
+        'd-icon': true
+      },
       propsData: { task: buildTask(taskProps) }
     })
   }
@@ -66,10 +69,10 @@ describe('TaskListItem.vue', () => {
       expect(wrapper.find('.actions').exists()).toBe(false)
     })
 
-    it('should apply the start class if it has been started', () => {
-      const wrapper = createWrapper({ started: true })
+    it('should apply the focus class if it has been focused', () => {
+      const wrapper = createWrapper({ focused: true })
 
-      expect(wrapper.classes()).toContain('started')
+      expect(wrapper.classes()).toContain('focused')
     })
 
     it('should apply the tagged class if it has tags', () => {
@@ -119,23 +122,23 @@ describe('TaskListItem.vue', () => {
     })
   })
 
-  describe('Start', () => {
-    it('should send the updateTask action with {started: true} for the task when the done button is clicked', () => {
+  describe('markFocused', () => {
+    it('should send the updateTask action with {focused: true} for the task when the done button is clicked', () => {
       const wrapper = createWrapper()
 
-      wrapper.find('button.start').trigger('click')
+      wrapper.find('button.focus').trigger('click')
 
-      verifyUpdate({ started: true })
+      verifyUpdate({ focused: true })
     })
   })
 
-  describe('Stop', () => {
-    it('should remove the started flag when the stop button is clicked', () => {
-      const wrapper = createWrapper({ started: true })
+  describe('markUnfocused', () => {
+    it('should remove the focused flag when the unfocus button is clicked', () => {
+      const wrapper = createWrapper({ focused: true })
 
-      wrapper.find('button.stop').trigger('click')
+      wrapper.find('button.unfocus').trigger('click')
 
-      verifyUpdate({ started: false })
+      verifyUpdate({ focused: false })
     })
   })
 
