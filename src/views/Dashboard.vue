@@ -1,7 +1,7 @@
 <template>
   <div id="dashboard">
     <h1>Dashboard</h1>
-    <h2>Active Tasks</h2>
+    <h2>Focused Tasks</h2>
     <task-list v-if='tasks.length' :tasks="tasks"></task-list>
     <p class="empty" v-else>No active tasks</p>
   </div>
