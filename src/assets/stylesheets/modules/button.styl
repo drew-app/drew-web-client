@@ -51,3 +51,14 @@ contained-button()
   &:active
     elevation(8)
 
+base-icon-button()
+  min-width unset
+  padding 2px calc(0.5rem - 2px)
+
+contained-icon-button()
+  contained-button()
+  base-icon-button()
+
+flat-icon-button()
+  flat-button()
+  base-icon-button()

@@ -6,35 +6,35 @@ export function newTask (attrs = {}) {
     {
       title: '',
       done: false,
-      started: false
+      focused: false
     }, attrs)
 }
 
 export class TaskSearch {
   filterDone (task) { return this.includeDone || !task.done }
-  filterStarted (task) { return task.started === this.started }
+  filterFocused (task) { return task.focused === this.focused }
   filterTagName (task) {
     return task.tags.some((tag) => {
       return tag.name.localeCompare(this.tagName, 'en', { sensitivity: 'base' }) === 0
     })
   }
 
-  constructor ({ includeDone = null, started = null, tagName = null } = {}) {
+  constructor ({ includeDone = null, focused = null, tagName = null } = {}) {
     this.includeDone = includeDone
-    this.started = started
+    this.focused = focused
     this.tagName = tagName
   }
 
   filter (task) {
     let included = this.filterDone(task)
-    if (included && this.started !== null) { included = this.filterStarted(task) }
+    if (included && this.focused !== null) { included = this.filterFocused(task) }
     if (included && this.tagName !== null) { included = this.filterTagName(task) }
 
     return included
   }
 
   filterAll (tasks) {
-    return tasks.filter(task => this.filter(task))
+    return tasks.filter(task => this.filter(task)).sort((task1, task2) => task2.focused - task1.focused)
   }
 }
 
@@ -48,8 +48,8 @@ export const getters = {
     return Object.values(state.all)
   },
 
-  started: (state, getters) => {
-    return getters.all.filter(task => task.started && !task.done)
+  focused: (state, getters) => {
+    return getters.all.filter(task => task.focused && !task.done)
   },
 
   search: (state, getters) => {
@@ -80,8 +80,8 @@ export const mutations = {
 
   filterDone (state) { state.search.includeDone = !state.search.includeDone },
 
-  filterStarted (state) { state.search.started = !state.search.started },
-  disableFilterStarted (state) { state.search.started = null },
+  filterFocused (state) { state.search.focused = !state.search.focused },
+  disableFilterFocused (state) { state.search.focused = null },
 
   filterTagName (state, newTagName = null) { state.search.tagName = newTagName }
 }

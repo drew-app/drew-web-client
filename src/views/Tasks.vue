@@ -2,8 +2,8 @@
   <div id="tasks">
     <h1>Tasks</h1>
     <div class="filters">
-      <label><input id="tasks__show-done" type='checkbox' v-model="showDone"/> Show done</label>
-      <label><input id="tasks__focus-started" type="checkbox" v-model="focusStarted"/> Focus started</label>
+      <label><input id="tasks__show-done" type='checkbox' v-model="showDone"/>Show done</label>
+      <label><input id="tasks__focus-focused" type="checkbox" v-model="focused"/>Focused</label>
       <button v-if="showClearTagFilter" class="clear-tag-filter" @click="clearTagFilter">Clear Tag Filter</button>
     </div>
     <task-list :tasks="tasks"/>
@@ -31,13 +31,13 @@ export default {
       get () { return this._taskSearchObject.includeDone },
       set () { this.$store.commit('tasks/filterDone') }
     },
-    focusStarted: {
-      get () { return this._taskSearchObject.started },
+    focused: {
+      get () { return this._taskSearchObject.focused },
       set: function (value) {
         if (value) {
-          this.$store.commit('tasks/filterStarted')
+          this.$store.commit('tasks/filterFocused')
         } else {
-          this.$store.commit('tasks/disableFilterStarted')
+          this.$store.commit('tasks/disableFilterFocused')
         }
       }
     },

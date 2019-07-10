@@ -22,8 +22,8 @@ describe('Tasks.vue', () => {
     },
     mutations: {
       filterDone: jest.fn(),
-      filterStarted: jest.fn(),
-      disableFilterStarted: jest.fn(),
+      filterFocused: jest.fn(),
+      disableFilterFocused: jest.fn(),
       filterTagName: jest.fn()
     }
   }
@@ -85,25 +85,25 @@ describe('Tasks.vue', () => {
     })
   })
 
-  describe('focusStarted', () => {
+  describe('focused', () => {
     it('should mirror the filter state', () => {
-      mountWrapper({ state: { search: { started: true } } })
+      mountWrapper({ state: { search: { focused: true } } })
 
-      expect(wrapper.find('#tasks__focus-started').element.checked).toBe(true)
+      expect(wrapper.find('#tasks__focus-focused').element.checked).toBe(true)
     })
 
-    it('should commit the filterStarted mutation when enabled', () => {
+    it('should commit the filterFocused mutation when enabled', () => {
       mountWrapper()
-      wrapper.find('#tasks__focus-started').trigger('click')
+      wrapper.find('#tasks__focus-focused').trigger('click')
 
-      expect(stubs.mutations.filterStarted).toHaveBeenCalled()
+      expect(stubs.mutations.filterFocused).toHaveBeenCalled()
     })
 
-    it('should comit the disableFilterStarted mutation when disabled', () => {
-      mountWrapper({ state: { search: { started: true } } })
-      wrapper.find('#tasks__focus-started').trigger('click')
+    it('should comit the disableFilterFocused mutation when disabled', () => {
+      mountWrapper({ state: { search: { focused: true } } })
+      wrapper.find('#tasks__focus-focused').trigger('click')
 
-      expect(stubs.mutations.disableFilterStarted).toHaveBeenCalled()
+      expect(stubs.mutations.disableFilterFocused).toHaveBeenCalled()
     })
   })
 

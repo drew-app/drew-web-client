@@ -11,7 +11,7 @@ export function buildTask (overrideAttrs = {}) {
       id: taskFactoryIdSequenceNum,
       title: `Task number ${taskFactoryIdSequenceNum}`,
       done: false,
-      started: false,
+      focused: false,
       tags: []
     }),
     attrs
