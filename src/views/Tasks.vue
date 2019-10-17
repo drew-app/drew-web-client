@@ -7,7 +7,7 @@
       <button v-if="showClearTagFilter" class="clear-tag-filter" @click="clearTagFilter">Clear Tag Filter</button>
     </div>
     <task-list :tasks="tasks"/>
-    <add-task/>
+    <add-task :newTaskContext="newTaskContext"/>
     <transition name="slide-in-from-right" mode="in-out">
       <div v-if="showDetails" id="tasks__details">
         <router-view/>
@@ -42,7 +42,13 @@ export default {
       }
     },
     showClearTagFilter () { return !!this._taskSearchObject.tagName },
-    showDetails () { return this.$route.matched.length > 2 }
+    showDetails () { return this.$route.matched.length > 2 },
+    newTaskContext () {
+      let focused, tag
+      if (this._taskSearchObject.focused) { focused = true }
+      if (this._taskSearchObject.tagName) { tag = this._taskSearchObject.tagName }
+      return { focused, tag }
+    }
   },
   created () {
     this.$store.dispatch('tasks/loadAll')

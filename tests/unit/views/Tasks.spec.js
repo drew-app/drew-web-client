@@ -41,7 +41,14 @@ describe('Tasks.vue', () => {
         $route: route
       },
       stubs: {
-        'add-task': true,
+        'add-task': {
+          name: 'add-task',
+          template: '<div class="add-task-stub">{{newTaskContextAsJson}}</div>',
+          props: ['newTaskContext'],
+          computed: {
+            newTaskContextAsJson () { return JSON.stringify(this.newTaskContext) }
+          }
+        },
         'router-view': true,
         'd-icon': true,
         'task-list': {
@@ -141,6 +148,35 @@ describe('Tasks.vue', () => {
       mountWrapper({}, route)
 
       expect(wrapper.find('#tasks__details').exists()).toBe(true)
+    })
+  })
+
+  describe('newTaskContext', () => {
+    const checkNewTaskContext = (obj) =>
+      expect(wrapper.find('.add-task-stub').text()).toEqual(JSON.stringify(obj))
+
+    it('should be empty if no context is applied', () => {
+      mountWrapper({ state: { search: { focused: null, tagName: null } } })
+
+      checkNewTaskContext({})
+    })
+
+    it('should include focused: true if focused', () => {
+      mountWrapper({ state: { search: { focused: true, tagName: null } } })
+
+      checkNewTaskContext({ focused: true })
+    })
+
+    it('should include the tagName if one is selected', () => {
+      mountWrapper({ state: { search: { focused: null, tagName: 'home' } } })
+
+      checkNewTaskContext({ tag: 'home' })
+    })
+
+    it('should include both if both are set', () => {
+      mountWrapper({ state: { search: { focused: true, tagName: 'phone' } } })
+
+      checkNewTaskContext({ focused: true, tag: 'phone' })
     })
   })
 })
