@@ -6,26 +6,30 @@ describe('AddTask.vue', () => {
   let wrapper
   let titleInput
 
+  function mountWrapper (
+    done = () => {},
+    props = {},
+    expectedPayload = { task: { title: 'Some Title', focused: false }, tags: [] }
+  ) {
+    store = {
+      dispatch: jest.fn((action, payload) => {
+        expect(action).toEqual('tasks/addTask')
+        expect(payload).toEqual(expectedPayload)
+        done()
+      })
+    }
+
+    wrapper = mount(AddTask, { mocks: { $store: store }, propsData: props })
+
+    titleInput = wrapper.find('input[name="task-input"]')
+  }
+
+  function submitNewTask (inputValue = 'Some Title') {
+    titleInput.setValue(inputValue)
+    wrapper.find('form').trigger('submit')
+  }
+
   describe('submitting new task', () => {
-    function mountWrapper (done = () => {}) {
-      store = {
-        dispatch: jest.fn((action, payload) => {
-          expect(action).toEqual('tasks/addTask')
-          expect(payload).toEqual({ task: { title: 'Some Title' }, tags: [] })
-          done()
-        })
-      }
-
-      wrapper = mount(AddTask, { mocks: { $store: store } })
-
-      titleInput = wrapper.find('input[name="task-input"]')
-    }
-
-    function submitNewTask () {
-      titleInput.setValue('Some Title')
-      wrapper.find('form').trigger('submit')
-    }
-
     it('dispatches the addTask action with the provided title', (done) => {
       mountWrapper(done)
 
@@ -52,28 +56,48 @@ describe('AddTask.vue', () => {
   })
 
   describe('submitting a new task with tags', () => {
-    function mountWrapper (done = () => {}) {
-      store = {
-        dispatch: jest.fn((action, payload) => {
-          expect(action).toEqual('tasks/addTask')
-          expect(payload).toEqual({ task: { title: 'Some Title' }, tags: ['tagName1', 'tagName2'] })
-          done()
-        })
-      }
-
-      wrapper = mount(AddTask, { mocks: { $store: store } })
-      titleInput = wrapper.find('input[name="task-input"]')
-    }
-
-    function submitNewTask () {
-      titleInput.setValue('Some Title #tagName1 #tagName2')
-      wrapper.find('form').trigger('submit')
-    }
-
     it('dispatches the addTask action with the provided title and tags', (done) => {
-      mountWrapper(done)
+      mountWrapper(done,
+        {},
+        { task: { title: 'Some Title', focused: false }, tags: ['tagName1', 'tagName2'] }
+      )
+
+      submitNewTask('Some Title #tagName1 #tagName2')
+
+      expect(store.dispatch).toHaveBeenCalled()
+    })
+  })
+
+  describe('included newTaskContext in payload', () => {
+    it('should include the focused value', (done) => {
+      mountWrapper(done,
+        { newTaskContext: { focused: true } },
+        { task: { title: 'Some Title', focused: true }, tags: [] }
+      )
 
       submitNewTask()
+
+      expect(store.dispatch).toHaveBeenCalled()
+    })
+
+    it('should include the tag', (done) => {
+      mountWrapper(done,
+        { newTaskContext: { tag: 'home' } },
+        { task: { title: 'Some Title', focused: false }, tags: ['home'] }
+      )
+
+      submitNewTask()
+
+      expect(store.dispatch).toHaveBeenCalled()
+    })
+
+    it('should not double a tag', (done) => {
+      mountWrapper(done,
+        { newTaskContext: { tag: 'home' } },
+        { task: { title: 'Some Title', focused: false }, tags: ['home'] }
+      )
+
+      submitNewTask('Some Title #home')
 
       expect(store.dispatch).toHaveBeenCalled()
     })

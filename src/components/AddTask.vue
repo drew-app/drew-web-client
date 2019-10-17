@@ -12,6 +12,9 @@ import { excludeHashTags, getHashTags } from '@/lib/hashtag'
 
 export default {
   name: 'AddTask',
+  props: {
+    newTaskContext: { type: Object, default: () => ({}) }
+  },
   data: function () {
     return {
       taskInput: ''
@@ -20,13 +23,19 @@ export default {
   methods: {
     addTask: function () {
       const input = this.$data.taskInput
+      const newTaskContext = this.$props.newTaskContext
 
-      const payload = {
-        task: { title: excludeHashTags(input) },
-        tags: getHashTags(input)
+      let task = {
+        title: excludeHashTags(input),
+        focused: !!newTaskContext.focused
       }
 
-      this.$store.dispatch('tasks/addTask', payload)
+      let tags = getHashTags(input)
+      if (newTaskContext.tag && !tags.includes(newTaskContext.tag)) {
+        tags.push(newTaskContext.tag)
+      }
+
+      this.$store.dispatch('tasks/addTask', { task, tags })
       this.$data.taskInput = ''
     },
     focusNewTask () {
